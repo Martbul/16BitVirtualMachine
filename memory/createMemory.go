@@ -16,15 +16,15 @@ func CreateMemory(sizeInBytes int) *DataView {
 	return NewDataView(sizeInBytes)
 }
 
-// GetUint16 reads a 16-bit unsigned integer at a specific offset
+// GetUint16 reads a 16-bit unsigned integer (Big-Endian)
 func (dv *DataView) GetUint16(offset int) uint16 {
-	return uint16(dv.buffer[offset]) | uint16(dv.buffer[offset+1])<<8
+	return uint16(dv.buffer[offset])<<8 | uint16(dv.buffer[offset+1])
 }
 
-// SetUint16 writes a 16-bit unsigned integer at a specific offset
+// SetUint16 writes a 16-bit unsigned integer (Big-Endian)
 func (dv *DataView) SetUint16(offset int, value uint16) {
-	dv.buffer[offset] = byte(value)
-	dv.buffer[offset+1] = byte(value >> 8)
+	dv.buffer[offset] = byte(value >> 8) // High byte first
+	dv.buffer[offset+1] = byte(value)    // Low byte second
 }
 
 // GetUint8 reads an 8-bit unsigned integer at a specific offset
