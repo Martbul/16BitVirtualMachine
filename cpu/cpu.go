@@ -51,6 +51,19 @@ func (cpu *CPU) Debug() {
 	fmt.Println()
 }
 
+func (cpu *CPU) ViewMemoryAt(address int) {
+	//return: 0x0f01: 0x04 0xA3 0xFE 0x13 0x0
+
+	nextEightBytes := make([]string, 8)
+
+	for i := 0; i < 8; i++ {
+
+		nextEightBytes[i] = fmt.Sprintf("0X%02X", cpu.memory.GetUint8(address+i))
+	}
+
+	fmt.Printf("0x%04X: %s\n", address, nextEightBytes)
+}
+
 // GetRegister gets the value of a register
 func (cpu *CPU) GetRegister(name string) uint16 {
 	offset, exists := cpu.registerMap[name]
@@ -94,17 +107,35 @@ func (cpu *CPU) Fetch16() uint16 {
 func (cpu *CPU) Execute(instruction uint8) {
 	switch instruction {
 
-	case constants.MOV_LIT_R1:
+	case constants.MOV_LIT_REG:
 		literal := cpu.Fetch16()
-		cpu.SetRegister("r1", literal)
-		fmt.Printf("MOV_LIT_R1: Set r1 = 0x%04X\n", literal)
+		register := 2 * (cpu.Fetch() % uint8(len(cpu.registerNames)))
+		cpu.registers.SetUint16(int(register), literal)
 
-	case constants.MOV_LIT_R2:
-		literal := cpu.Fetch16()
-		cpu.SetRegister("r2", literal)
-		fmt.Printf("MOV_LIT_R2: Set r2 = 0x%04X\n", literal)
+		//moving register to register
+	case constants.MOV_REG_REG:
+		registerFrom := 2 * (cpu.Fetch() % uint8(len(cpu.registerNames)))
+		registerTo := 2 * (cpu.Fetch() % uint8(len(cpu.registerNames)))
+		value := cpu.registers.GetUint16(int(registerFrom))
+		cpu.registers.SetUint16(int(registerTo), value)
 
-		// add register to register
+	//move register to memory
+	case constants.MOV_REG_MEM:
+		fmt.Println("here")
+		registerFrom := 2 * (cpu.Fetch() % uint8(len(cpu.registerNames)))
+		address := cpu.Fetch16()
+		value := cpu.registers.GetUint16(int(registerFrom))
+		cpu.memory.SetUint16(int(address), value)
+		fmt.Println("here")
+
+	//move memory to register
+	case constants.MOV_MEM_REG:
+		address := cpu.Fetch16()
+		value := cpu.memory.GetUint16(int(address))
+		registerTo := 2 * (cpu.Fetch() % uint8(len(cpu.registerNames)))
+		cpu.registers.SetUint16(int(registerTo), value)
+
+	// add register to register
 	case constants.ADD_REG_REG:
 		r1 := cpu.Fetch()
 		r2 := cpu.Fetch()
