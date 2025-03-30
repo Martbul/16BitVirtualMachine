@@ -28,6 +28,7 @@ func NewCPU(mem *memory.DataView) *CPU {
 		"ip", "acc",
 		"r1", "r2", "r3", "r4",
 		"r5", "r6", "r7", "r8",
+		"sp", "fp",
 	}
 
 	// Create registers memory space with 2 bytes per register
@@ -37,12 +38,18 @@ func NewCPU(mem *memory.DataView) *CPU {
 		registerMap[name] = i * 2
 	}
 
-	return &CPU{
+	cpu := &CPU{
 		memory:        mem,
 		registerNames: registerNames,
 		registers:     registers,
 		registerMap:   registerMap,
 	}
+	// Stack grows downward, so set SP and FP at the end of memory
+	stackStart := len(mem.GetBuffer()) - 1 - 1
+	cpu.SetRegister("sp", uint16(stackStart))
+	cpu.SetRegister("fp", uint16(stackStart))
+
+	return cpu
 }
 
 func (cpu *CPU) Debug() {
@@ -105,25 +112,37 @@ func (cpu *CPU) Fetch16() uint16 {
 	return instruction
 }
 
+func (cpu *CPU) Push(value uint16) {
+	spAddress := cpu.GetRegister("sp")
+
+	cpu.memory.SetUint16(int(spAddress), value)
+	cpu.SetRegister("sp", spAddress-2)
+
+}
+
+func (cpu *CPU) FetachRegisterIndex() int {
+	return (int(cpu.Fetch()) % len(cpu.registerNames)) * 2
+}
+
 // Execute decodes and executes instructions
 func (cpu *CPU) Execute(instruction uint8) {
 	switch instruction {
 
 	case constants.MOV_LIT_REG:
 		literal := cpu.Fetch16()
-		register := 2 * (cpu.Fetch() % uint8(len(cpu.registerNames)))
+		register := cpu.FetachRegisterIndex()
 		cpu.registers.SetUint16(int(register), literal)
 
 		//moving register to register
 	case constants.MOV_REG_REG:
-		registerFrom := 2 * (cpu.Fetch() % uint8(len(cpu.registerNames)))
-		registerTo := 2 * (cpu.Fetch() % uint8(len(cpu.registerNames)))
+		registerFrom := cpu.FetachRegisterIndex()
+		registerTo := cpu.FetachRegisterIndex()
 		value := cpu.registers.GetUint16(int(registerFrom))
 		cpu.registers.SetUint16(int(registerTo), value)
 
 	//move register to memory
 	case constants.MOV_REG_MEM:
-		registerFrom := 2 * (cpu.Fetch() % uint8(len(cpu.registerNames)))
+		registerFrom := cpu.FetachRegisterIndex()
 		address := cpu.Fetch16()
 		value := cpu.registers.GetUint16(int(registerFrom))
 		cpu.memory.SetUint16(int(address), value)
@@ -132,7 +151,7 @@ func (cpu *CPU) Execute(instruction uint8) {
 	case constants.MOV_MEM_REG:
 		address := cpu.Fetch16()
 		value := cpu.memory.GetUint16(int(address))
-		registerTo := 2 * (cpu.Fetch() % uint8(len(cpu.registerNames)))
+		registerTo := cpu.FetachRegisterIndex()
 		cpu.registers.SetUint16(int(registerTo), value)
 
 	// add register to register
@@ -160,6 +179,15 @@ func (cpu *CPU) Execute(instruction uint8) {
 			cpu.SetRegister("ip", address)
 		}
 
+	//push literal value on the stack
+	case constants.PSH_LIT:
+		value := cpu.Fetch16()
+		cpu.Push(value)
+
+	//push val from register on the stack
+	case constants.PSH_REG:
+		registerIndex := cpu.FetachRegisterIndex()
+		cpu.Push(cpu.registers.GetUint16(registerIndex))
 	}
 }
 

@@ -1,0 +1,6 @@
+The cpu has registers/instruction pointer, stack pointer,frame pointer, accumulator and general/, they are used to track state.
+The stack gives you a temporary state
+
+Memory is represented by a slice of byte and a stack
+
+
