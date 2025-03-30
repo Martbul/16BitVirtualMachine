@@ -55,8 +55,8 @@ Make sure you have Go installed. If not, download it from [golang.org](https://g
 
 ### 2️⃣ **Clone the Repository**
 ```sh
-git clone https://github.com/your-username/cpu-emulator.git
-cd cpu-emulator
+git clone https://github.com/Martbul/16BitVirtualMachine.git
+cd 16BitVirtualMachine
 ```
 
 ### 3️⃣ **Run the Emulator**
