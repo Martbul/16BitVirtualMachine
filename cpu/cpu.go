@@ -1,3 +1,5 @@
+//INFO: This CPU implementation reads binary instructions from memory, decodes them and executes them. The instructions are stored  as bytes and the memory is undernned a big slice
+
 // 16 bit cpu
 // each register is 16 bits wide
 package cpu
@@ -121,12 +123,10 @@ func (cpu *CPU) Execute(instruction uint8) {
 
 	//move register to memory
 	case constants.MOV_REG_MEM:
-		fmt.Println("here")
 		registerFrom := 2 * (cpu.Fetch() % uint8(len(cpu.registerNames)))
 		address := cpu.Fetch16()
 		value := cpu.registers.GetUint16(int(registerFrom))
 		cpu.memory.SetUint16(int(address), value)
-		fmt.Println("here")
 
 	//move memory to register
 	case constants.MOV_MEM_REG:
@@ -152,8 +152,14 @@ func (cpu *CPU) Execute(instruction uint8) {
 		fmt.Printf("ADD_REG_REG: Added r%d (0x%04X) + r%d (0x%04X) = 0x%04X (stored in acc)\n",
 			r1, registerValue1, r2, registerValue2, sum)
 
-	default:
-		log.Fatalf("execute: Unknown instruction 0x%02X", instruction)
+	case constants.JMP_NOT_EQ:
+		value := cpu.Fetch16()
+		address := cpu.Fetch16()
+
+		if value != cpu.GetRegister("acc") {
+			cpu.SetRegister("ip", address)
+		}
+
 	}
 }
 
