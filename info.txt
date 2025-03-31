@@ -3,4 +3,4 @@ The stack gives you a temporary state
 
 Memory is represented by a slice of byte and a stack
 
-
+The memory mapper is a layer between the cpu and the memory. It maps memory addresses to devices. THe base is 16 bit -> there are 0xffff unifuly addressable bytes, what are devided into a different devices(RAM, output, ...)
