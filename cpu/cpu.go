@@ -17,10 +17,11 @@ import (
 //registers are small peice of memory
 
 type CPU struct {
-	memory        *memory.DataView
-	registers     *memory.DataView
-	registerMap   map[string]int
-	registerNames []string
+	memory         *memory.DataView
+	registers      *memory.DataView
+	registerMap    map[string]int
+	registerNames  []string
+	stackFrameSize int
 }
 
 func NewCPU(mem *memory.DataView) *CPU {
@@ -38,11 +39,14 @@ func NewCPU(mem *memory.DataView) *CPU {
 		registerMap[name] = i * 2
 	}
 
+	stackFrameSize := 0
+
 	cpu := &CPU{
-		memory:        mem,
-		registerNames: registerNames,
-		registers:     registers,
-		registerMap:   registerMap,
+		memory:         mem,
+		registerNames:  registerNames,
+		registers:      registers,
+		registerMap:    registerMap,
+		stackFrameSize: stackFrameSize,
 	}
 	// Stack grows downward, so set SP and FP at the end of memory
 	stackStart := len(mem.GetBuffer()) - 1 - 1
@@ -60,17 +64,22 @@ func (cpu *CPU) Debug() {
 	fmt.Println()
 }
 
-func (cpu *CPU) ViewMemoryAt(address int) {
+func (cpu *CPU) ViewMemoryAt(address int, n ...int) {
 	//return: 0x0f01: 0x04 0xA3 0xFE 0x13 0x0
+	nDefaultVal := 8
 
-	nextEightBytes := make([]string, 8)
-
-	for i := 0; i < 8; i++ {
-
-		nextEightBytes[i] = fmt.Sprintf("0X%02X", cpu.memory.GetUint8(address+i))
+	if len(n) > 0 {
+		nDefaultVal = n[0] // Use the provided value if given
 	}
 
-	fmt.Printf("0x%04X: %s\n", address, nextEightBytes)
+	nextNBytes := make([]string, nDefaultVal)
+
+	for i := 0; i < nDefaultVal; i++ {
+
+		nextNBytes[i] = fmt.Sprintf("0X%02X", cpu.memory.GetUint8(address+i))
+	}
+
+	fmt.Printf("0x%04X: %s\n", address, nextNBytes)
 }
 
 // GetRegister gets the value of a register
@@ -104,7 +113,7 @@ func (cpu *CPU) Fetch() uint8 {
 	return instruction
 }
 
-// Fetch16 fetches a 16-bit instruction from memory
+// fetches the 16-bit instruction where the instruction pointer is located
 func (cpu *CPU) Fetch16() uint16 {
 	nextInstructionAddress := cpu.GetRegister("ip")
 	instruction := cpu.memory.GetUint16(int(nextInstructionAddress))
@@ -112,24 +121,69 @@ func (cpu *CPU) Fetch16() uint16 {
 	return instruction
 }
 
+func (cpu *CPU) FetachRegisterIndex() int {
+	return (int(cpu.Fetch()) % len(cpu.registerNames)) * 2
+}
+
 func (cpu *CPU) Push(value uint16) {
 	spAddress := cpu.GetRegister("sp")
 
 	cpu.memory.SetUint16(int(spAddress), value)
 	cpu.SetRegister("sp", spAddress-2)
-
+	cpu.stackFrameSize += 2
 }
-
-func (cpu *CPU) FetachRegisterIndex() int {
-	return (int(cpu.Fetch()) % len(cpu.registerNames)) * 2
-}
-
 func (cpu *CPU) Pop() uint16 {
 
 	nextSpAddress := cpu.GetRegister("sp") + 2
 	cpu.SetRegister("sp", nextSpAddress)
 	value := cpu.memory.GetUint16(int(nextSpAddress))
+	cpu.stackFrameSize -= 2
 	return value
+}
+
+// Pushes the cpu's state onto the stack
+func (cpu *CPU) PushState() {
+
+	//saving the cpu state
+	cpu.Push(cpu.GetRegister("r1"))
+	cpu.Push(cpu.GetRegister("r2"))
+	cpu.Push(cpu.GetRegister("r3"))
+	cpu.Push(cpu.GetRegister("r4"))
+	cpu.Push(cpu.GetRegister("r5"))
+	cpu.Push(cpu.GetRegister("r6"))
+	cpu.Push(cpu.GetRegister("r7"))
+	cpu.Push(cpu.GetRegister("r8"))
+	cpu.Push(cpu.GetRegister("ip")) //INFO: ip is the return address of this subroutine
+	cpu.Push(uint16(cpu.stackFrameSize) + 2)
+
+	cpu.SetRegister("fp", cpu.GetRegister("sp")) //INFO: Moving the framePointer to where the stackPointer points
+	cpu.stackFrameSize = 0                       //INFO: Reseting the stackFrameSize
+}
+
+func (cpu *CPU) PopState() {
+	framePointerAddress := cpu.GetRegister("fp")
+	cpu.SetRegister("sp", framePointerAddress)
+
+	cpu.stackFrameSize = int(cpu.Pop())
+	stackFrameSize := cpu.stackFrameSize
+
+	cpu.SetRegister("ip", cpu.Pop())
+	cpu.SetRegister("r8", cpu.Pop())
+	cpu.SetRegister("r7", cpu.Pop())
+	cpu.SetRegister("r6", cpu.Pop())
+	cpu.SetRegister("r5", cpu.Pop())
+	cpu.SetRegister("r4", cpu.Pop())
+	cpu.SetRegister("r3", cpu.Pop())
+	cpu.SetRegister("r2", cpu.Pop())
+	cpu.SetRegister("r1", cpu.Pop())
+
+	nArgs := cpu.Pop()
+
+	for i := 0; i < int(nArgs); i++ {
+		cpu.Pop()
+	}
+
+	cpu.SetRegister("fp", framePointerAddress+uint16(stackFrameSize))
 }
 
 // Execute decodes and executes instructions
@@ -202,6 +256,23 @@ func (cpu *CPU) Execute(instruction uint8) {
 		value := cpu.Pop()
 		cpu.registers.SetUint16(registerIndex, value)
 
+	case constants.CAL_LIT:
+		address := cpu.Fetch16()
+
+		//saving the cpu state
+		cpu.PushState()
+
+		cpu.SetRegister("ip", address)
+
+	case constants.CAL_REG:
+		registerIndex := cpu.FetachRegisterIndex()
+		address := cpu.registers.GetUint16(registerIndex)
+		cpu.PushState()
+		cpu.SetRegister("ip", address)
+
+		//return from subroutinw
+	case constants.RET:
+		cpu.PopState()
 	}
 }
 
