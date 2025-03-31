@@ -124,6 +124,14 @@ func (cpu *CPU) FetachRegisterIndex() int {
 	return (int(cpu.Fetch()) % len(cpu.registerNames)) * 2
 }
 
+func (cpu *CPU) Pop() uint16 {
+
+	nextSpAddress := cpu.GetRegister("sp") + 2
+	cpu.SetRegister("sp", nextSpAddress)
+	value := cpu.memory.GetUint16(int(nextSpAddress))
+	return value
+}
+
 // Execute decodes and executes instructions
 func (cpu *CPU) Execute(instruction uint8) {
 	switch instruction {
@@ -188,6 +196,12 @@ func (cpu *CPU) Execute(instruction uint8) {
 	case constants.PSH_REG:
 		registerIndex := cpu.FetachRegisterIndex()
 		cpu.Push(cpu.registers.GetUint16(registerIndex))
+
+	case constants.POP:
+		registerIndex := cpu.FetachRegisterIndex()
+		value := cpu.Pop()
+		cpu.registers.SetUint16(registerIndex, value)
+
 	}
 }
 

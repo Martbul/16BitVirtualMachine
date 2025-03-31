@@ -33,7 +33,7 @@ func Program2() {
 	i++
 	memoryBytes[i] = 0x00
 	i++
-	memoryBytes[i] = R1
+	memoryBytes[i] = constants.R1
 	i++
 
 	memoryBytes[i] = constants.MOV_LIT_REG
@@ -42,19 +42,19 @@ func Program2() {
 	i++
 	memoryBytes[i] = 0x01
 	i++
-	memoryBytes[i] = R2
+	memoryBytes[i] = constants.R2
 	i++
 
 	memoryBytes[i] = constants.ADD_REG_REG
 	i++
-	memoryBytes[i] = R1
+	memoryBytes[i] = constants.R1
 	i++
-	memoryBytes[i] = R2
+	memoryBytes[i] = constants.R2
 	i++
 
 	memoryBytes[i] = constants.MOV_REG_MEM
 	i++
-	memoryBytes[i] = ACC
+	memoryBytes[i] = constants.ACC
 	i++
 	memoryBytes[i] = 0x01
 	i++
