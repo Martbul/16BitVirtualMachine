@@ -8,5 +8,6 @@ func main() {
 	//simpleprograms.Program1()
 	//simpleprograms.Program2()
 	//simpleprograms.Program3()
-	simpleprograms.Program4()
+	//simpleprograms.Program4()
+	simpleprograms.Program5()
 }

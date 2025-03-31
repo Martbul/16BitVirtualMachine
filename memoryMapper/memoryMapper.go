@@ -28,17 +28,23 @@ func NewMemoryMapper() *MemoryMapper {
 	}
 }
 
-// Map adds a new memory-mapped region.
-func (m *MemoryMapper) Map(device MemoryDevice, start, end int, remap bool) func() {
+// Map adds a new memory-mapped region. If remap is not provided, it defaults to true.
+func (m *MemoryMapper) Map(device MemoryDevice, start, end int, remap ...bool) func() {
+	// Set default value for remap (true)
+	shouldRemap := true
+	if len(remap) > 0 {
+		shouldRemap = remap[0]
+	}
+
 	region := Region{
 		Device: device,
 		Start:  start,
 		End:    end,
-		Remap:  remap,
+		Remap:  shouldRemap,
 	}
-	m.Regions = append([]Region{region}, m.Regions...)
+	m.Regions = append([]Region{region}, m.Regions...) // Prepend region
 
-	// Return an unmap function to remove the region later
+	// Return an unmap function
 	return func() {
 		newRegions := []Region{}
 		for _, r := range m.Regions {

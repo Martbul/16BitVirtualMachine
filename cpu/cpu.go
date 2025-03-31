@@ -10,6 +10,7 @@ import (
 
 	"github.com/martbul/constants"
 	"github.com/martbul/memory"
+	memorymapper "github.com/martbul/memoryMapper"
 )
 
 //register hold state in the CPU
@@ -24,7 +25,7 @@ type CPU struct {
 	stackFrameSize int
 }
 
-func NewCPU(mem *memory.DataView) *CPU {
+func NewCPU(mem *memorymapper.MemoryMapper) *CPU {
 	registerNames := []string{
 		"ip", "acc",
 		"r1", "r2", "r3", "r4",
