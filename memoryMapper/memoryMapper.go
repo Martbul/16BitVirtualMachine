@@ -98,6 +98,7 @@ func (m *MemoryMapper) GetUint8(address int) (uint8, error) {
 
 // A method for setting a uint16 value at a given address in memory
 func (m *MemoryMapper) SetUint16(address int, value uint16) error {
+	//fmt.Printf("MemoryMapper: Writing 0x%X ('%c') to address 0x%X\n", value, value&0x00FF, address)
 	region, err := m.FindRegion(address)
 	if err != nil {
 		return err

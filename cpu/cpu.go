@@ -18,7 +18,7 @@ import (
 //registers are small peice of memory
 
 type CPU struct {
-	memory         *memory.DataView
+	memory         *memorymapper.MemoryMapper
 	registers      *memory.DataView
 	registerMap    map[string]int
 	registerNames  []string
@@ -76,8 +76,9 @@ func (cpu *CPU) ViewMemoryAt(address int, n ...int) {
 	nextNBytes := make([]string, nDefaultVal)
 
 	for i := 0; i < nDefaultVal; i++ {
+		val, _ := cpu.memory.GetUint8(address + i)
 
-		nextNBytes[i] = fmt.Sprintf("0X%02X", cpu.memory.GetUint8(address+i))
+		nextNBytes[i] = fmt.Sprintf("0X%02X", val)
 	}
 
 	fmt.Printf("0x%04X: %s\n", address, nextNBytes)
@@ -107,7 +108,7 @@ func (cpu *CPU) Fetch() uint8 {
 	nextInstructionAddress := cpu.GetRegister("ip")
 
 	// Fetch the instruction (byte) from memory at the current address
-	instruction := cpu.memory.GetUint8(int(nextInstructionAddress))
+	instruction, _ := cpu.memory.GetUint8(int(nextInstructionAddress))
 
 	cpu.SetRegister("ip", nextInstructionAddress+1)
 
@@ -117,7 +118,7 @@ func (cpu *CPU) Fetch() uint8 {
 // fetches the 16-bit instruction where the instruction pointer is located
 func (cpu *CPU) Fetch16() uint16 {
 	nextInstructionAddress := cpu.GetRegister("ip")
-	instruction := cpu.memory.GetUint16(int(nextInstructionAddress))
+	instruction, _ := cpu.memory.GetUint16(int(nextInstructionAddress))
 	cpu.SetRegister("ip", nextInstructionAddress+2)
 	return instruction
 }
@@ -137,7 +138,7 @@ func (cpu *CPU) Pop() uint16 {
 
 	nextSpAddress := cpu.GetRegister("sp") + 2
 	cpu.SetRegister("sp", nextSpAddress)
-	value := cpu.memory.GetUint16(int(nextSpAddress))
+	value, _ := cpu.memory.GetUint16(int(nextSpAddress))
 	cpu.stackFrameSize -= 2
 	return value
 }
@@ -188,14 +189,14 @@ func (cpu *CPU) PopState() {
 }
 
 // Execute decodes and executes instructions
-func (cpu *CPU) Execute(instruction uint8) bool {
+func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 	switch instruction {
 
 	case constants.MOV_LIT_REG:
 		literal := cpu.Fetch16()
 		register := cpu.FetachRegisterIndex()
 		cpu.registers.SetUint16(int(register), literal)
-		return false
+		return false, ""
 
 		//moving register to register
 	case constants.MOV_REG_REG:
@@ -203,7 +204,7 @@ func (cpu *CPU) Execute(instruction uint8) bool {
 		registerTo := cpu.FetachRegisterIndex()
 		value := cpu.registers.GetUint16(int(registerFrom))
 		cpu.registers.SetUint16(int(registerTo), value)
-		return false
+		return false, ""
 
 	//move register to memory
 	case constants.MOV_REG_MEM:
@@ -211,15 +212,17 @@ func (cpu *CPU) Execute(instruction uint8) bool {
 		address := cpu.Fetch16()
 		value := cpu.registers.GetUint16(int(registerFrom))
 		cpu.memory.SetUint16(int(address), value)
-		return false
+
+		//	fmt.Printf("MOV_REG_MEM: Writing 0x%X ('%c') to memory address 0x%X\n", value, value, address) // Debug
+		return false, ""
 
 	//move memory to register
 	case constants.MOV_MEM_REG:
 		address := cpu.Fetch16()
-		value := cpu.memory.GetUint16(int(address))
+		value, _ := cpu.memory.GetUint16(int(address))
 		registerTo := cpu.FetachRegisterIndex()
 		cpu.registers.SetUint16(int(registerTo), value)
-		return false
+		return false, ""
 
 	// add register to register
 	case constants.ADD_REG_REG:
@@ -232,9 +235,9 @@ func (cpu *CPU) Execute(instruction uint8) bool {
 		sum := registerValue1 + registerValue2
 		cpu.SetRegister("acc", sum)
 
-		fmt.Printf("ADD_REG_REG: Added r%d (0x%04X) + r%d (0x%04X) = 0x%04X (stored in acc)\n",
-			r1, registerValue1, r2, registerValue2, sum)
-		return false
+		///		fmt.Printf("ADD_REG_REG: Added r%d (0x%04X) + r%d (0x%04X) = 0x%04X (stored in acc)\n",
+		//			r1, registerValue1, r2, registerValue2, sum)
+		return false, ""
 
 	case constants.JMP_NOT_EQ:
 		value := cpu.Fetch16()
@@ -243,25 +246,25 @@ func (cpu *CPU) Execute(instruction uint8) bool {
 		if value != cpu.GetRegister("acc") {
 			cpu.SetRegister("ip", address)
 		}
-		return false
+		return false, ""
 
 	//push literal value on the stack
 	case constants.PSH_LIT:
 		value := cpu.Fetch16()
 		cpu.Push(value)
-		return false
+		return false, ""
 
 	//push val from register on the stack
 	case constants.PSH_REG:
 		registerIndex := cpu.FetachRegisterIndex()
 		cpu.Push(cpu.registers.GetUint16(registerIndex))
-		return false
+		return false, ""
 
 	case constants.POP:
 		registerIndex := cpu.FetachRegisterIndex()
 		value := cpu.Pop()
 		cpu.registers.SetUint16(registerIndex, value)
-		return false
+		return false, ""
 
 	case constants.CAL_LIT:
 		address := cpu.Fetch16()
@@ -270,38 +273,43 @@ func (cpu *CPU) Execute(instruction uint8) bool {
 		cpu.PushState()
 
 		cpu.SetRegister("ip", address)
-		return false
+		return false, ""
 
 	case constants.CAL_REG:
 		registerIndex := cpu.FetachRegisterIndex()
 		address := cpu.registers.GetUint16(registerIndex)
 		cpu.PushState()
 		cpu.SetRegister("ip", address)
-		return false
+		return false, ""
 
 		//return from subroutinw
 	case constants.RET:
 		cpu.PopState()
-		return false
+		return false, ""
 
 	case constants.HLT:
-		return true
+		return true, "manual hlt"
 
 		// default case to handle unknown instructions
 	default:
-		fmt.Printf("Unknown instruction: 0x%X\n", instruction)
-		return false
+		fmt.Printf("Unknown instruction: 0x%X at address: 0x%X\n", instruction, cpu.GetRegister("ip")-1)
+		return true, "error hlt"
 
 	}
 }
 
-func (cpu *CPU) Step() {
+func (cpu *CPU) Step() (bool, string) {
 	instruction := cpu.Fetch()
-	cpu.Execute(instruction)
+	isRunning, hltReason := cpu.Execute(instruction)
+	return isRunning, hltReason
 }
 
 func (cpu *CPU) Run() {
 	for {
-		cpu.Step() // Execute one step
+		isRunning, _ := cpu.Step()
+		if isRunning {
+			//fmt.Println(hltReason)
+			break
+		}
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/martbul/constants"
-	cpuPack "github.com/martbul/cpu"
 	"github.com/martbul/memory"
 )
 
@@ -14,7 +13,7 @@ func Program1() {
 	//getting the memmory's byte slice
 	memoryBytes := memory.GetBuffer()
 
-	cpu := cpuPack.NewCPU(memory)
+	//cpu := cpuPack.NewCPU(memory)
 
 	i := 0
 
@@ -60,16 +59,16 @@ func Program1() {
 	fmt.Println("Instruction Memory:", memoryBytes[:i])
 
 	// Debug initial state
-	cpu.Debug()
-	cpu.ViewMemoryAt(int(cpu.GetRegister("ip"))) // View memory at IP
-	cpu.ViewMemoryAt(0x0100)                     // View memory at 0x0100
+	//	cpu.Debug()
+	//	cpu.ViewMemoryAt(int(cpu.GetRegister("ip"))) // View memory at IP
+	//	cpu.ViewMemoryAt(0x0100)                     // View memory at 0x0100
 
 	// Step through the instructions and print state
-	for step := 1; step <= 4; step++ {
-		fmt.Printf("\n🔹 Step %d\n", step)
-		cpu.Step()
-		cpu.Debug()
-		cpu.ViewMemoryAt(int(cpu.GetRegister("ip")))
-		cpu.ViewMemoryAt(0x0100)
-	}
+	//	for step := 1; step <= 4; step++ {
+	//		fmt.Printf("\n🔹 Step %d\n", step)
+	//		cpu.Step()
+	//		cpu.Debug()
+	//		cpu.ViewMemoryAt(int(cpu.GetRegister("ip")))
+	///		cpu.ViewMemoryAt(0x0100)
+	//	}
 }

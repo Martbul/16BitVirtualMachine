@@ -1,11 +1,7 @@
 package simpleprograms
 
 import (
-	"bufio"
-	"os"
-
 	"github.com/martbul/constants"
-	cpuPack "github.com/martbul/cpu"
 	"github.com/martbul/memory"
 )
 
@@ -24,7 +20,7 @@ func Program3() {
 	//getting the memmory's byte slice
 	memoryBytes := memory.GetBuffer()
 
-	cpu := cpuPack.NewCPU(memory)
+	//	cpu := cpuPack.NewCPU(memory)
 
 	i := 0
 
@@ -66,15 +62,16 @@ func Program3() {
 	memoryBytes[i] = constants.R2
 	i++
 
-	cpu.Debug()
-	cpu.ViewMemoryAt(int(cpu.GetRegister("ip")))
-	cpu.ViewMemoryAt(0xffff - 1 - 6) //INFO: The start of the stack
+	//	cpu.Debug()
+	//	cpu.ViewMemoryAt(int(cpu.GetRegister("ip")))
+	///	cpu.ViewMemoryAt(0xffff - 1 - 6) //INFO: The start of the stack
 
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		cpu.Step()
-		cpu.Debug()
-		cpu.ViewMemoryAt(int(cpu.GetRegister("ip")))
-		cpu.ViewMemoryAt(0xffff - 1 - 6)
-	}
+	// scanner := bufio.NewScanner(os.Stdin)
+	//
+	//	for scanner.Scan() {
+	//		cpu.Step()
+	//		cpu.Debug()
+	//		cpu.ViewMemoryAt(int(cpu.GetRegister("ip")))
+	//		cpu.ViewMemoryAt(0xffff - 1 - 6)
+	//	}
 }

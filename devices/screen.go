@@ -1,6 +1,9 @@
 package devices
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 // ScreenDevice represents a simple terminal screen
 type ScreenDevice struct {
@@ -27,27 +30,35 @@ func (s *ScreenDevice) SetUint8(address int, value uint8) {
 
 // SetUint16 processes commands and writes characters to the screen
 func (s *ScreenDevice) SetUint16(address int, data uint16) {
+	//fmt.Printf("ScreenDevice: Received data 0x%X ('%c') at address 0x%X\n", data, data&0x00FF, address) // Debug
+
 	command := (data & 0xFF00) >> 8
 	characterValue := data & 0x00FF
 
 	// Process commands
 	switch command {
 	case 0xFF:
-		eraseScreen()
+		eraseScreen() // Clear screen if command is 0xFF
 	case 0x01:
-		setBold()
+		setBold() // Apply bold formatting
 	case 0x02:
-		setRegular()
+		setRegular() // Reset to regular formatting
 	}
 
-	// Calculate screen position
-	x := (address % 16) + 1
-	y := (address / 16) + 1
-	moveTo(x*2, y)
+	// Update this to work with larger screens (e.g., 80 columns and 25 rows)
+	// Assuming screen size is 80 columns and 25 rows:
+	x := address % 80 // Columns: modulo 80
+	y := address / 80 // Rows: divide by 80
 
-	// Print character
+	moveTo(x+1, y+1) // Move cursor to calculated (x, y) position
+
+	// Print the character
 	character := rune(characterValue)
 	fmt.Print(string(character))
+
+	// Reset the text formatting
+	fmt.Print("\x1b[0m")
+	os.Stdout.Sync() // Ensure output is flushed to terminal immediately
 }
 
 // eraseScreen clears the terminal screen
