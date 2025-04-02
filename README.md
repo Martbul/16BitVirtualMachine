@@ -1,4 +1,4 @@
-# 🏗️ 16-bit Virtual Machine Emulator
+# 🌐 16-bit Virtual Machine Emulator
 
 ## 📌 Overview
 This project is a **Virtual Machine** written in **Go** that simulates a simple instruction set architecture (ISA). It includes **memory management**, **register operations**, and **basic arithmetic instructions**.
