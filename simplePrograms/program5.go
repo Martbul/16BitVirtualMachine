@@ -26,9 +26,21 @@ func Program5() {
 	cpu := cpuPack.NewCPU(memoryMapper) //WARN: changed the type that newcpu receives, possible error in the future
 	ip := 0
 
-	str := "hello world"
-	for index, char := range str {
-		writeCharToScreen(&memoryBytes, &ip, char, index)
+	//str := "hello world"
+	//for index, char := range str {
+	//		writeCharToScreen(&memoryBytes, &ip, char, index)
+	//}
+
+	writeCharToScreen(&memoryBytes, &ip, ' ', 0xff, 0) // clearing the screen(terminal)
+
+	for i := 0; i <= 0xff; i++ {
+		var command int
+		if i%2 == 0 {
+			command = 0x01 //bold font
+		} else {
+			command = 0x02 //regular font
+		}
+		writeCharToScreen(&memoryBytes, &ip, '*', command, i)
 	}
 
 	// Writing the halt instruction to stop the program
@@ -40,13 +52,13 @@ func Program5() {
 }
 
 // Function to write a character to the screen memory
-func writeCharToScreen(memoryBytes *[]byte, ip *int, char rune, position int) {
+func writeCharToScreen(memoryBytes *[]byte, ip *int, char rune, command int, position int) {
 	// Writing MOV_LIT_REG instruction (load immediate value into register)
 	(*memoryBytes)[*ip] = constants.MOV_LIT_REG
 	*ip++
 
 	// Writing 0x00 as high byte (it's part of the instruction)
-	(*memoryBytes)[*ip] = 0x00
+	(*memoryBytes)[*ip] = byte(command)
 	*ip++
 
 	// Writing the character 'P' (ASCII value 80) to memory (lower byte)

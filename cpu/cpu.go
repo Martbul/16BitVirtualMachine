@@ -224,6 +224,31 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		cpu.registers.SetUint16(int(registerTo), value)
 		return false, ""
 
+	case constants.MOV_LIT_MEM:
+		value := cpu.Fetch16()
+		address := cpu.Fetch16()
+		cpu.memory.SetUint16(int(address), value)
+		return false, ""
+
+	case constants.MOV_REG_PTR_REG:
+		r1 := cpu.FetachRegisterIndex() //register we want the vaklue form
+		r2 := cpu.FetachRegisterIndex() //destination regisster
+		ptr := cpu.registers.GetUint16(r1)
+		value, _ := cpu.memory.GetUint16(int(ptr)) //WARN: Bad error hnadlg fix later
+		cpu.registers.SetUint16(r2, value)
+		return false, ""
+
+	// move value at [literal + register ] to register
+	case constants.MOV_LIT_OFF_REG:
+		baseAddress := cpu.Fetch16()
+		r1 := cpu.FetachRegisterIndex()
+		r2 := cpu.FetachRegisterIndex() //destination reg
+		offset := cpu.registers.GetUint16(r1)
+
+		value, _ := cpu.memory.GetUint16(int(baseAddress) + int(offset))
+		cpu.registers.SetUint16(r2, value)
+		return false, ""
+
 	// add register to register
 	case constants.ADD_REG_REG:
 		r1 := cpu.FetachRegisterIndex()
@@ -239,12 +264,306 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		//			r1, registerValue1, r2, registerValue2, sum)
 		return false, ""
 
+	//add literal value to register value
+	case constants.ADD_LIT_REG:
+		literal := cpu.Fetch16()
+		r1 := cpu.FetachRegisterIndex()
+		registerValue := cpu.registers.GetUint16(r1)
+		cpu.SetRegister("acc", literal+registerValue)
+		return false, ""
+
+	case constants.SUB_LIT_REG:
+		literal := cpu.Fetch16()
+		r1 := cpu.FetachRegisterIndex()
+		registerValue := cpu.registers.GetUint16(r1)
+		res := registerValue - literal
+		cpu.SetRegister("acc", res)
+		return false, ""
+
+	// subtract register value from a literal value
+	case constants.SUB_REG_LIT:
+		r1 := cpu.FetachRegisterIndex()
+		registerValue := cpu.registers.GetUint16(r1)
+		literal := cpu.Fetch16()
+		res := literal - registerValue
+		cpu.SetRegister("acc", res)
+		return false, ""
+
+	case constants.SUB_REG_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r2 := cpu.FetachRegisterIndex()
+		registerValue1 := cpu.registers.GetUint16(r1)
+		registerValue2 := cpu.registers.GetUint16(r2)
+		res := registerValue1 - registerValue2
+		cpu.SetRegister("acc", res)
+		return false, ""
+
+	case constants.MUL_LIT_REG:
+		literal := cpu.Fetch16()
+		r1 := cpu.FetachRegisterIndex()
+		r1Value := cpu.registers.GetUint16(r1)
+		res := literal * r1Value
+		cpu.SetRegister("acc", res)
+		return false, ""
+
+	case constants.MUL_REG_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r2 := cpu.FetachRegisterIndex()
+		registerValue1 := cpu.registers.GetUint16(r1)
+		registerValue2 := cpu.registers.GetUint16(r2)
+		res := registerValue1 * registerValue2
+		cpu.SetRegister("acc", res)
+		return false, ""
+
+	case constants.INC_REG:
+		r1 := cpu.FetachRegisterIndex()
+		oldValue := cpu.registers.GetUint16(r1)
+		newValue := oldValue + 1
+		cpu.registers.SetUint16(r1, newValue)
+		return false, ""
+
+	case constants.DEC_REG:
+		r1 := cpu.FetachRegisterIndex()
+		oldValue := cpu.registers.GetUint16(r1)
+		newValue := oldValue - 1
+		cpu.registers.SetUint16(r1, newValue)
+		return false, ""
+
+	// left shift register by literal value (in place)
+	//INFO: Any bits that are outside the boudnaries of 16 are lost
+	//in left shif 9 << 2 is equal to 9 * 2^2
+	case constants.LSF_REG_LIT:
+		r1 := cpu.FetachRegisterIndex()
+		literal := cpu.Fetch16()
+		registerValue := cpu.registers.GetUint16(r1)
+		res := registerValue << literal
+		cpu.registers.SetUint16(r1, res)
+		return false, ""
+
+	// left shift register by register (in place)
+	case constants.LSF_REG_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r2 := cpu.FetachRegisterIndex()
+		registerValue1 := cpu.registers.GetUint16(r1)
+		registerValue2 := cpu.registers.GetUint16(r2)
+		res := registerValue1 << registerValue2
+		cpu.registers.SetUint16(r1, res)
+		return false, ""
+
+	//INFO: in right shift 9 >> 2 is equal to 9 / 2^2
+	case constants.RSF_REG_LIT:
+		r1 := cpu.FetachRegisterIndex()
+		literal := cpu.Fetch16()
+		registerValue := cpu.registers.GetUint16(r1)
+		res := registerValue >> literal
+		cpu.registers.SetUint16(r1, res)
+		return false, ""
+
+	// right shift register by register (in place)
+	case constants.RSF_REG_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r2 := cpu.FetachRegisterIndex()
+		registerValue1 := cpu.registers.GetUint16(r1)
+		registerValue2 := cpu.registers.GetUint16(r2)
+		res := registerValue1 >> registerValue2
+		cpu.registers.SetUint16(r1, res)
+		return false, ""
+
+	// and register with literal
+	//INFO: AND takes 2 binary numbers and produce a new binary number wher ieatch place is one where both of the numbers BOTH of the 2 binariy nums have a 1 in the same place, otherwise it is 0(useful for isolating a particular part of a number like the bottom or the top byte)
+	case constants.AND_REG_LIT:
+		r1 := cpu.FetachRegisterIndex()
+		literal := cpu.Fetch16()
+		registerValue := cpu.registers.GetUint16(r1)
+
+		res := registerValue & literal
+		cpu.SetRegister("acc", res)
+		return false, ""
+
+	case constants.AND_REG_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r2 := cpu.FetachRegisterIndex()
+		registerValue1 := cpu.registers.GetUint16(r1)
+		registerValue2 := cpu.registers.GetUint16(r2)
+
+		res := registerValue1 & registerValue2
+		cpu.SetRegister("acc", res)
+		return false, ""
+
+	//INFO: OR takes 2 binary numbers and produce a new binary number where each place is a one if eather of the numbers have a 1 in that place, otherwise it is a 0.
+	case constants.OR_REG_LIT:
+		r1 := cpu.FetachRegisterIndex()
+		literal := cpu.Fetch16()
+		registerValue := cpu.registers.GetUint16(r1)
+
+		res := registerValue | literal
+		cpu.SetRegister("acc", res)
+		return false, ""
+
+	case constants.OR_REG_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r2 := cpu.FetachRegisterIndex()
+		registerValue1 := cpu.registers.GetUint16(r1)
+		registerValue2 := cpu.registers.GetUint16(r2)
+
+		res := registerValue1 | registerValue2
+		cpu.SetRegister("acc", res)
+		return false, ""
+
+	//INFO: XOR works almost like OR, exapt what it is exclusive -> each place is a 1 if ever a number is a 1, if both are 1 or if both are 0 it is a 0.
+	// A ^ B = C
+	// A ^ C = B
+	// B ^ C = A
+	case constants.XOR_REG_LIT:
+		r1 := cpu.FetachRegisterIndex()
+		literal := cpu.Fetch16()
+		registerValue := cpu.registers.GetUint16(r1)
+
+		res := registerValue ^ literal
+		cpu.SetRegister("acc", res)
+		return false, ""
+
+	case constants.XOR_REG_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r2 := cpu.FetachRegisterIndex()
+		registerValue1 := cpu.registers.GetUint16(r1)
+		registerValue2 := cpu.registers.GetUint16(r2)
+
+		res := registerValue1 ^ registerValue2
+		cpu.SetRegister("acc", res)
+		return false, ""
+
+	//INFO: NOT flips all bits in a number 0->1 and 1->0
+	case constants.NOT:
+		r1 := cpu.FetachRegisterIndex()
+		registerValue := cpu.registers.GetUint16(r1)
+		res := ^registerValue & 0xffff // selecting just the bottmo 16 bits so that the number is not abouve the 16 bits the vm works on
+		cpu.SetRegister("acc", res)
+		return false, ""
+
+		//jump if literal not equal
 	case constants.JMP_NOT_EQ:
 		value := cpu.Fetch16()
 		address := cpu.Fetch16()
 
 		if value != cpu.GetRegister("acc") {
 			cpu.SetRegister("ip", address)
+		}
+		return false, ""
+
+		//jump if register not equal
+	case constants.JNE_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r1Value := cpu.registers.GetUint16(r1)
+		addressToJupmTo := cpu.Fetch16()
+
+		if r1Value != cpu.GetRegister("acc") {
+			cpu.SetRegister("ip", addressToJupmTo)
+		}
+		return false, ""
+
+		//jump if literal equal
+	case constants.JEQ_LIT:
+		value := cpu.Fetch16()
+		address := cpu.Fetch16()
+
+		if value == cpu.GetRegister("acc") {
+			cpu.SetRegister("ip", address)
+		}
+		return false, ""
+
+		//jump if register equal
+	case constants.JEQ_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r1Value := cpu.registers.GetUint16(r1)
+		addressToJupmTo := cpu.Fetch16()
+
+		if r1Value == cpu.GetRegister("acc") {
+			cpu.SetRegister("ip", addressToJupmTo)
+		}
+		return false, ""
+
+		//jump if literal less than
+	case constants.JLT_LIT:
+		value := cpu.Fetch16()
+		address := cpu.Fetch16()
+
+		if value < cpu.GetRegister("acc") {
+			cpu.SetRegister("ip", address)
+		}
+		return false, ""
+
+		//jump if register less than
+	case constants.JLT_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r1Value := cpu.registers.GetUint16(r1)
+		addressToJupmTo := cpu.Fetch16()
+
+		if r1Value < cpu.GetRegister("acc") {
+			cpu.SetRegister("ip", addressToJupmTo)
+		}
+		return false, ""
+
+		//jump if literal greater than
+	case constants.JGT_LIT:
+		value := cpu.Fetch16()
+		address := cpu.Fetch16()
+
+		if value > cpu.GetRegister("acc") {
+			cpu.SetRegister("ip", address)
+		}
+		return false, ""
+
+		//jump if register greater than
+	case constants.JGT_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r1Value := cpu.registers.GetUint16(r1)
+		addressToJupmTo := cpu.Fetch16()
+
+		if r1Value > cpu.GetRegister("acc") {
+			cpu.SetRegister("ip", addressToJupmTo)
+		}
+		return false, ""
+
+		//jump if literal less than or equal to
+	case constants.JLE_LIT:
+		value := cpu.Fetch16()
+		address := cpu.Fetch16()
+
+		if value <= cpu.GetRegister("acc") {
+			cpu.SetRegister("ip", address)
+		}
+		return false, ""
+
+		//jump if register less than or equal to
+	case constants.JLE_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r1Value := cpu.registers.GetUint16(r1)
+		addressToJupmTo := cpu.Fetch16()
+
+		if r1Value <= cpu.GetRegister("acc") {
+			cpu.SetRegister("ip", addressToJupmTo)
+		}
+		return false, ""
+
+		//jump if literal greater than or equal to
+	case constants.JGE_LIT:
+		value := cpu.Fetch16()
+		address := cpu.Fetch16()
+
+		if value >= cpu.GetRegister("acc") {
+			cpu.SetRegister("ip", address)
+		}
+		return false, ""
+
+		//jump if register greater than or equal to
+	case constants.JGE_REG:
+		r1 := cpu.FetachRegisterIndex()
+		r1Value := cpu.registers.GetUint16(r1)
+		addressToJupmTo := cpu.Fetch16()
+
+		if r1Value >= cpu.GetRegister("acc") {
+			cpu.SetRegister("ip", addressToJupmTo)
 		}
 		return false, ""
 
