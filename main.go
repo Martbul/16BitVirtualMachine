@@ -1,13 +1,27 @@
 package main
 
 import (
-	simpleprograms "github.com/martbul/simplePrograms"
+	"fmt"
+
+	asseblerParser "github.com/martbul/assembler/parser"
 )
 
 func main() {
-	//simpleprograms.Program1()
-	//simpleprograms.Program2()
-	//simpleprograms.Program3()
-	//simpleprograms.Program4()
-	simpleprograms.Program5()
+	// Example: Parse 'mov $42, r4'
+	// Create the MOV parser
+	parser, err := asseblerParser.MovLitToRegParser()
+	if err != nil {
+		fmt.Println("Error building MOV parser:", err)
+		return
+	}
+
+	// Parse input instruction with filename (can be anything like "input")
+	result, err := parser.ParseString("input", "mov $42, r4")
+	if err != nil {
+		fmt.Println("Error parsing instruction:", err)
+		return
+	}
+
+	// Output parsed result
+	fmt.Println(result)
 }
