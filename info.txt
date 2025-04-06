@@ -4,3 +4,11 @@ The stack gives you a temporary state
 Memory is represented by a slice of byte and a stack
 
 The memory mapper is a layer between the cpu and the memory. It maps memory addresses to devices. THe base is 16 bit -> there are 0xffff unifuly addressable bytes, what are devided into a different devices(RAM, output, ...)
+
+
+THE PARSER:
+A parser is a program that reads text input (like code or commands) and converts it into a structured format that a computer can work with more easily. In this case, both parsers are designed to read assembly-like instructions (e.g., mov $42, r4) and convert them into a structured format called an Abstract Syntax Tree (AST).
+
+-lexer - A lexer (short for lexical analyzer) is the first step in a compiler or interpreter pipeline. Its job is to take raw source code — just a string of characters — and break it up into meaningful pieces called tokens.
+
+

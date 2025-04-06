@@ -1,182 +1,6 @@
 // mov $42, r1 -> (instruction literal hex value, register)
 
 // move [$42 + (!loc - $1F)], r1 -> (instruction [literal hex value + (!variable - )])
-//package parser
-
-//import (
-//	"github.com/alecthomas/participle/v2"
-///	"github.com/alecthomas/participle/v2/lexer"
-///)
-
-// Register represents a register (e.g., R1, r2, SP)
-//type Register struct {
-//	Value string `parser:"@Register"`
-//}
-
-// HexLiteral represents a hex literal (e.g., $1F, $deadBEEF)
-//type HexLiteral struct {
-//	Value string `parser:"'$' @HexDigit+"`
-//}
-
-// SquareBracketExpr represents an expression in square brackets (e.g., [R1])
-//type SquareBracketExpr struct {
-//	Expr string `parser:"'[' @Ident ']'"`
-//}
-
-// Instruction represents a generic instruction
-//type Instruction struct {
-//	Instruction string        `parser:"@Ident"`
-//	Args        []interface{} `parser:"@HexLiteral | @Register | @SquareBracketExpr"`
-//	Type        string        `parser:""`
-//}
-
-// Custom lexer for both registers, hex literals, and square bracket expressions
-//var lexerDef = lexer.MustSimple([]lexer.SimpleRule{
-///	{Name: "Register", Pattern: `(?i)\b(r[1-8]|sp|fp|ip|acc)\b`},
-//	{Name: "HexDigit", Pattern: `[0-9A-Fa-f]`},         // hex digit
-///	{Name: "Ident", Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`}, // identifier
-//	{Name: "Char", Pattern: `\$`},                      // '$' literal
-//	{Name: "Whitespace", Pattern: `[ \t\n\r]+`},        // skip whitespace
-///})
-
-// RegisterParser returns a parser for register names
-//func RegisterParser() (*participle.Parser[Register], error) {
-//	return participle.Build[Register](
-//		participle.Lexer(lexerDef),
-//	)
-//}
-
-// HexParser returns a parser for hex literals
-//func HexParser() (*participle.Parser[HexLiteral], error) {
-//	return participle.Build[HexLiteral](
-///		participle.Lexer(lexerDef),
-//		participle.Elide("Whitespace"),
-//	)
-//}
-
-// SquareBracketParser returns a parser for expressions in square brackets
-//func SquareBracketParser() (*participle.Parser[SquareBracketExpr], error) {
-//	return participle.Build[SquareBracketExpr](
-//		participle.Lexer(lexerDef),
-///		participle.Elide("Whitespace"),
-//	)
-//}
-
-// MovLitToRegParser parses a MOV_LIT_REG instruction
-//
-//	func MovLitToRegParser() (*participle.Parser[Instruction], error) {
-//		return participle.Build[Instruction](
-//
-// /		participle.Lexer(lexerDef),
-//
-//			participle.Elide("Whitespace"),
-//		)
-//	}/
-
-//package parser
-
-//import (
-//	"github.com/alecthomas/participle/v2"
-//	"github.com/alecthomas/participle/v2/lexer"
-//)
-
-// === Lexer ===
-
-//var lexerDef = lexer.MustSimple([]lexer.SimpleRule{
-//	{Name: "Register", Pattern: `(?i)\b(r[1-8]|sp|fp|ip|acc)\b`},
-//	{Name: "HexDigit", Pattern: `[0-9A-Fa-f]+`},
-//	{Name: "Ident", Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`},
-//	{Name: "Operator", Pattern: `[\+\-\*]`},
-//	{Name: "Whitespace", Pattern: `[ \t\n\r]+`},
-//	{Name: "Punct", Pattern: `[\[\],!$]`},
-//})
-
-// === AST Nodes ===
-
-//type Register struct {
-//	Value string `parser:"@Register"`
-//}
-
-//type HexLiteral struct {
-//	Value string `parser:"'$' @HexDigit"`
-//}
-
-//type Variable struct {
-//	Name string `parser:"'!' @Ident"`
-//}
-
-//type Operator struct {
-//	Symbol string `parser:"@Operator"`
-//}
-
-//type Expr struct {
-//	Hex    *HexLiteral        `parser:"  @@"`
-//	Reg    *Register          `parser:"| @@"`
-//	Var    *Variable          `parser:"| @@"`
-//	Square *SquareBracketExpr `parser:"| @@"`
-//}
-
-//type SquareBracketExpr struct {
-//	Open  string  `parser:"'['"`
-//	Parts []*Expr `parser:"@@ ( @Operator @@ )*"`
-//	Close string  `parser:"']'"`
-//}
-
-//type Instruction struct {
-//	Instr string `parser:"@Ident"`
-//	Arg1  *Expr  `parser:"@@ ','"`
-//	Arg2  *Expr  `parser:"@@"`
-//}
-
-// === Parser Constructors ===
-
-// NewParser returns a parser for full instructions like "mov $42, r4"
-//func NewParser() (*participle.Parser[Instruction], error) {
-//	return participle.Build[Instruction](
-///		participle.Lexer(lexerDef),
-//		participle.Elide("Whitespace"),
-///	)
-//}
-
-// RegisterParser returns a parser for register names (e.g. r1, sp)
-//func RegisterParser() (*participle.Parser[Register], error) {
-//	return participle.Build[Register](
-//		participle.Lexer(lexerDef),
-//	)
-//}
-
-// HexParser returns a parser for hex literals like "$42"
-//func HexParser() (*participle.Parser[HexLiteral], error) {
-//	return participle.Build[HexLiteral](
-//		participle.Lexer(lexerDef),
-//		participle.Elide("Whitespace"),
-//	)
-//}
-
-// VariableParser returns a parser for variables like "!foo"
-//func VariableParser() (*participle.Parser[Variable], error) {
-///	return participle.Build[Variable](
-//		participle.Lexer(lexerDef),
-///		participle.Elide("Whitespace"),
-///	)
-//}
-
-// SquareBracketParser parses expressions inside brackets like "[r1 + $10]"
-//func SquareBracketParser() (*participle.Parser[SquareBracketExpr], error) {
-///	return participle.Build[SquareBracketExpr](
-//		participle.Lexer(lexerDef),
-//		participle.Elide("Whitespace"),
-//	)
-//}
-
-// MovLitToRegParser parses "mov $42, r4"
-//func MovLitToRegParser() (*participle.Parser[Instruction], error) {
-//	return participle.Build[Instruction](
-//		participle.Lexer(lexerDef),
-//		participle.Elide("Whitespace"),
-//	)
-//}
-
 package parser
 
 import (
@@ -185,16 +9,17 @@ import (
 	"strings"
 )
 
-// === Lexer ===
+// === Lexer === //
 var lexerDef = lexer.MustSimple([]lexer.SimpleRule{
-	{Name: "Register", Pattern: `(?i)\b(r[1-8]|sp|fp|ip|acc)\b`},
-	{Name: "HexDigit", Pattern: `[0-9A-Fa-f]+`},
-	{Name: "Ident", Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`},
-	{Name: "Operator", Pattern: `[\+\-\*]`},
-	{Name: "Whitespace", Pattern: `[ \t\n\r]+`},
-	{Name: "Punct", Pattern: `[\[\],!$]`},
+	{Name: "Register", Pattern: `(?i)\b(r[1-8]|sp|fp|ip|acc)\b`}, //INFO: Matches register names(r1-r8, sp,fp,ip,acc) with case sensitivity
+	{Name: "HexDigit", Pattern: `[0-9A-Fa-f]+`},                  //INFO: Matches hexadecimal digits(0-9, A-F,a-f)
+	{Name: "Ident", Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`},           //INFO: Matches identifiers(variable names)
+	{Name: "Operator", Pattern: `[\+\-\*]`},                      //INFO: matches arithmetic operations(+,-,*)
+	{Name: "Whitespace", Pattern: `[ \t\n\r]+`},                  //INFO:Matches spaces, tabs, newlines
+	{Name: "Punct", Pattern: `[\[\],!$]`},                        //INFO: Matches punctuation chars (brackets, commas, ! and $ symbols)
 })
 
+// === TypeSystem === //
 // NodeType represents the type of AST node
 type NodeType string
 
@@ -354,10 +179,10 @@ func UpperOrLowerStr(s string) []string {
 
 // === Parser Constructors ===
 // ParseMovLitToReg parses "mov $42, r4"
-func ParseMovLitToReg(input string) (*Node, error) {
-	parser, err := participle.Build[MovInstruction](
+func ParseMovLitToReg(input string) (*Node, error) { //INFO:parses the input string and converts the result to a Node:
+	parser, err := participle.Build[MovInstruction]( //INFO:builds a parser specifically for MovInstruction
 		participle.Lexer(lexerDef),
-		participle.Elide("Whitespace"),
+		participle.Elide("Whitespace"), //INFO:option tells the parser to ignore whitespace tokens
 	)
 	if err != nil {
 		return nil, err

@@ -1,0 +1,43 @@
+THE PARSER IS BASICLY A STATE MACHINE
+When you call ParseAndPrint("mov $42, r4"), here's what happens:
+
+ParseMovLitToReg builds a parser for MovInstruction
+The parser lexes the input into tokens: "mov", "$", "42", ",", "r4"
+It matches these tokens against the MovInstruction struct:
+
+"mov" matches Instr
+"$42" matches Arg1 as a HexLiteral
+"," matches Comma
+"r4" matches Arg2 as a Register
+
+
+It builds a MovInstruction struct with these values
+MovInstruction.AsNode() converts this to a generic Node
+The Node has this structure:{
+  "type": "INSTRUCTION",
+  "value": {
+    "instruction": "MOV_LIT_REG",
+    "args": [
+      {"type": "HEX_LITERAL", "value": "42"},
+      {"type": "REGISTER", "value": "r4"}
+    ]
+  }
+}
+
+
+
+
+
+PARSING NESTED EXPRESSIONS AND DISAMBIGUATING THE ORDER OF OPERATION
+the expression: ($05 * ($31 + !var) - $07)
+
+stack [
+  [],
+  []
+]
+
+final expr array: [ $05, *, [ $31, +, !var], -, $07 ]
+
+
+the state maching visualization: 
+( ⇄ element or opening bracket ⇄ operator or closing bracket ⇄ )
