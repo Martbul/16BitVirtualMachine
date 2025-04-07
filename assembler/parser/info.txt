@@ -1,4 +1,44 @@
 THE PARSER IS BASICLY A STATE MACHINE
+
+Overall Architecture
+The parser follows a recursive descent pattern and uses the participle library to handle the parsing mechanics. The code consists of several interconnected components:
+
+Lexer Definition: Tokenizes the input string into meaningful tokens like registers, identifiers, etc.
+Type System: Defines the AST node types and structures
+AST Nodes: Structures that represent different elements of the assembly syntax
+Parser Constructors: Functions that build and run parsers for specific patterns
+Order of Operations Logic: Code that restructures the AST to respect operator precedence
+
+THE LEXER:
+This defines regex patterns for each token type. The lexer converts the input string into a sequence of these tokens. For example, r4 is recognized as a "Register" token, and $42 is split into a "Punct" token ($) and a "HexDigit" token (42).
+
+
+Type System:
+This establishes a common structure for all AST nodes. Every node has a Type (like "REGISTER") and a Value (could be a string, another node, a slice of nodes, etc.).
+AST Nodes
+The code defines various struct types that represent different syntax elements:
+
+Register: Represents processor registers like r1, sp
+HexLiteral: Represents hexadecimal literals like $42
+Variable: Represents variables like !loc
+Operator: Represents operators like +, -, *
+SquareBracketExpr: Represents expressions in square brackets like [$42 + !loc]
+BracketedExpr: Represents expressions in parentheses like ($31 + !var)
+MovInstruction: Represents a complete mov instruction
+
+Each struct has an AsNode() method that converts it to the generic Node structure.
+
+
+OPERATOR PRECEDENCE LOGIC:
+The DisambiguateOrderOfOperations function is particularly complex. It:
+
+Examines the structure of bracketed expressions
+Identifies operators and their priorities (multiply > plus > minus)
+Recursively transforms the AST to respect these priorities
+Returns a modified AST with binary operations properly nested
+
+For an expression like [$42 + !loc - ($05 * $31)], it ensures that the multiplication happens before the addition and subtraction.
+
 When you call ParseAndPrint("mov $42, r4"), here's what happens:
 
 ParseMovLitToReg builds a parser for MovInstruction
@@ -10,7 +50,7 @@ It matches these tokens against the MovInstruction struct:
 "," matches Comma
 "r4" matches Arg2 as a Register
 
-
+Parser Constructor:
 It builds a MovInstruction struct with these values
 MovInstruction.AsNode() converts this to a generic Node
 The Node has this structure:{

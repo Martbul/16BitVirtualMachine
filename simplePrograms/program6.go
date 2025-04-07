@@ -2,18 +2,22 @@ package simpleprograms
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/martbul/assembler/parser"
 )
 
 func SimpleProgram6() {
-	assembly := "mov $42, r4"
-	node, err := parser.ParseMovLitToReg(assembly)
+	input := "mov [$42 + !loc - ($05 * ($31 + !var) - $07)], r4"
+	node, err := parser.ParseMovLitToReg(input)
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Fprintf(os.Stderr, "Error parsing: %v\n", err)
 		return
 	}
-	// Print the node (you would implement proper JSON/YAML pretty printing)
-	fmt.Printf("%+v\n", node)
+
+	fmt.Println("AST for:", input)
+	//parser.DeepLog(node)
+	// or
+	parser.PrettyPrintNode(node)
 
 }
