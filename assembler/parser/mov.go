@@ -104,20 +104,74 @@ func MovLitToMem(input string) (*Node, error) {
 	return movInstr.AsNode(), nil
 }
 
-// ParseMovInstruction parses both "mov $42, r4" and "mov r1, r2" patterns
-//func ParseMovInstruction(input string) (*Node, error) {
-//	// Try MovLitToReg first
-//	litNode, litErr := MovLitToReg(input)
-//	if litErr == nil {
-//		return litNode, nil
-//	}
+// MovRegToReg parses "mov r1, r2" expressions
+func MovRegPtrToReg(input string) (*Node, error) {
+	parser, err := participle.Build[MovRegPtrToRegInstruction](
+		participle.Lexer(lexerDef),
+		participle.Elide("Whitespace"),
+	)
+	if err != nil {
+		return nil, err
+	}
 
-// If that fails, try MovRegToReg
-//	regNode, regErr := MovRegToReg(input)
-//	if regErr == nil {
-//		return regNode, nil
-//	}
+	// Parse the input string
+	movInstr, err := parser.ParseString("", input)
+	if err != nil {
+		return nil, err
+	}
 
-// If both fail, return the most appropriate error
-//	return nil, fmt.Errorf("failed to parse mov instruction: %v, %v", litErr, regErr)
-//}/
+	return movInstr.AsNode(), nil
+}
+
+// MovRegToReg parses "mov r1, r2" expressions
+func MovLitOffToReg(input string) (*Node, error) {
+	// Build the parser for this specific instruction type
+	parser, err := participle.Build[MovLitOffToRegInstruction](
+		participle.Lexer(lexerDef),
+		participle.Elide("Whitespace"),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// Parse the input string
+	movInstr, err := parser.ParseString("", input)
+	if err != nil {
+		return nil, err
+	}
+
+	return movInstr.AsNode(), nil
+}
+
+// ParseMovInstruction tries all possible MOV instruction patterns and returns the first successful parse
+
+func ParseMovInstruction(input string) (*Node, error) {
+	// Define a slice of parser functions to try
+	parsers := []struct {
+		name string
+		fn   func(string) (*Node, error)
+	}{
+		{"MovLitToReg", MovLitToReg},
+		{"MovRegToReg", MovRegToReg},
+		{"MovRegToMem", MovRegToMem},
+		{"MovMemToReg", MovMemToReg},
+		{"MovLitToMem", MovLitToMem},
+		{"MovRegPtrToReg", MovRegPtrToReg},
+		{"MovLitOffToReg", MovLitOffToReg},
+	}
+
+	// Try each parser in sequence
+	var errors []string
+	for _, parser := range parsers {
+		node, err := parser.fn(input)
+		if err == nil {
+			// Success! Return the parsed node
+			return node, nil
+		}
+		// Collect error for reporting
+		errors = append(errors, fmt.Sprintf("%s: %v", parser.name, err))
+	}
+
+	// If we reach here, all parsers failed
+	return nil, fmt.Errorf("failed to parse mov instruction. Errors: %v", errors)
+}

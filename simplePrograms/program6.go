@@ -8,8 +8,10 @@ import (
 )
 
 func SimpleProgram6() {
-	input := "mov [$42 + !loc - ($05 * ($31 + !var) - $07)], r4"
-	node, err := parser.ParseMovLitToReg(input)
+	//	input := "mov [$42 + !loc - ($05 * ($31 + !var) - $07)], r4"
+	//WARN: input := "mov acc, &[!loc + $4200]" - doesn not work(mov reg mem)
+	input := "mov &4200, r1"
+	node, err := parser.ParseMovInstruction(input)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing: %v\n", err)
 		return

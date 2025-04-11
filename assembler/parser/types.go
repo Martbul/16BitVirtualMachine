@@ -7,6 +7,7 @@ type NodeType string
 // Node types corresponding to JavaScript asType values
 const (
 	TypeRegister          NodeType = "REGISTER"
+	TypeRegisterPointer   NodeType = "REGISTER_POINTER"
 	TypeHexLiteral        NodeType = "HEX_LITERAL"
 	TypeVariable          NodeType = "VARIABLE"
 	TypeOpPlus            NodeType = "OP_PLUS"
@@ -71,6 +72,19 @@ func (a *Address) AsNode() *Node {
 	return &Node{
 		Type:  "ADDRESS",
 		Value: a.Value,
+	}
+}
+
+// RegisterPointer represents a register pointer (e.g., &r1)
+type RegisterPointer struct {
+	Register *Register `parser:"'&' @@" json:"register"`
+}
+
+// AsNode converts RegisterPointer to Node
+func (rp *RegisterPointer) AsNode() *Node {
+	return &Node{
+		Type:  TypeRegisterPointer,
+		Value: rp.Register.Value,
 	}
 }
 
@@ -292,6 +306,46 @@ func (m *MovMemToRegInstruction) AsNode() *Node {
 		Value: map[string]interface{}{
 			"instruction": "MOV_MEM_REG",
 			"args":        []*Node{m.Memory.AsNode(), m.Reg.AsNode()},
+		},
+	}
+}
+
+// MovRegPtrToReg specifically handles register pointer to register instructions
+type MovRegPtrToRegInstruction struct {
+	Instr  string           `parser:"@('mov'|'MOV')"`
+	RegPtr *RegisterPointer `parser:"@@"`
+	Comma  string           `parser:"','"`
+	Reg    *Register        `parser:"@@"`
+}
+
+// AsNode converts MovRegPtrToReg to Node
+func (m *MovRegPtrToRegInstruction) AsNode() *Node {
+	return &Node{
+		Type: TypeInstruction,
+		Value: map[string]interface{}{
+			"instruction": "MOV_REG_PTR_REG",
+			"args":        []*Node{m.RegPtr.AsNode(), m.Reg.AsNode()},
+		},
+	}
+}
+
+// MovRegPtrToReg specifically handles register pointer to register instructions
+type MovLitOffToRegInstruction struct {
+	Instr  string            `parser:"@('mov'|'MOV')"`
+	Lit    *LiteralReference `parser:"@@"`
+	Comma1 string            `parser:"','"`
+	RegPtr *RegisterPointer  `parser:"@@"`
+	Comma2 string            `parser:"','"`
+	Reg    *Register         `parser:"@@"`
+}
+
+// AsNode converts MovRegPtrToReg to Node
+func (m *MovLitOffToRegInstruction) AsNode() *Node {
+	return &Node{
+		Type: TypeInstruction,
+		Value: map[string]interface{}{
+			"instruction": "MOV_LIT_OFF_REG",
+			"args":        []*Node{m.Lit.AsNode(), m.RegPtr.AsNode(), m.Reg.AsNode()},
 		},
 	}
 }
