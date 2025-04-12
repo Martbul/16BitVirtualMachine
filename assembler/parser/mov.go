@@ -151,8 +151,8 @@ func ParseMovInstruction(input string) (*Node, error) {
 		name string
 		fn   func(string) (*Node, error)
 	}{
-		{"MovLitToReg", MovLitToReg},
-		{"MovRegToReg", MovRegToReg},
+		{"MovLitToReg", MovLitToReg}, //INFO: WORKS
+		{"MovRegToReg", MovRegToReg}, //INFO WORKS
 		{"MovRegToMem", MovRegToMem},
 		{"MovMemToReg", MovMemToReg},
 		{"MovLitToMem", MovLitToMem},

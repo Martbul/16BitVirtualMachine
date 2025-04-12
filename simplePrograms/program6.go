@@ -9,8 +9,13 @@ import (
 
 func SimpleProgram6() {
 	//	input := "mov [$42 + !loc - ($05 * ($31 + !var) - $07)], r4"
-	//WARN: input := "mov acc, &[!loc + $4200]" - doesn not work(mov reg mem)
-	input := "mov &4200, r1"
+
+	//input := "mov $42, &C0DE"
+	//	input := "mov acc, r1"
+	//	input := "mov acc, &[!loc + $4200]"
+	//input := "mov &4200, r1"
+	//input := "mov &r3, acc"
+	input := "mov $42, &r1, r4"
 	node, err := parser.ParseMovInstruction(input)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing: %v\n", err)
