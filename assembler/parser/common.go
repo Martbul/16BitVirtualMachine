@@ -9,19 +9,10 @@ import (
 	"github.com/alecthomas/participle/v2/lexer"
 )
 
-// === Lexer === //
-//var lexerDef = lexer.MustSimple([]lexer.SimpleRule{
-//	{Name: "Register", Pattern: `(?i)\b(r[1-8]|sp|fp|ip|acc)\b`}, // Matches register names(r1-r8, sp,fp,ip,acc)
-//	{Name: "HexDigit", Pattern: `[0-9A-Fa-f]+`},                  // Matches hexadecimal digits(0-9, A-F,a-f)
-//	{Name: "Ident", Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`},           // Matches identifiers(variable names)
-//	{Name: "Operator", Pattern: `[\+\-\*]`},                      // Matches arithmetic operations(+,-,*)
-//	{Name: "Whitespace", Pattern: `[ \t\n\r]+`},                  // Matches spaces, tabs, newlines
-//	{Name: "Punct", Pattern: `[\[\],!$()\-]`},                    // Matches punctuation chars (brackets, commas, ! and $ symbols)
-//})
-
 var lexerDef = lexer.MustSimple([]lexer.SimpleRule{
 	{Name: "Register", Pattern: `(?i)\b(r[1-8]|sp|fp|ip|acc)\b`},
 	{Name: "HexDigit", Pattern: `[0-9A-Fa-f]+`},
+	{Name: "Instruction", Pattern: `(?i)\b(mov|add|sub|inc|dec|mul|lsf|rsf|and|or|xor|not|jmp|jne|jeq|jlt|jgt|jle|jge|psh|pop|cal|ret|hlt)\b`},
 	{Name: "Ident", Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`},
 	{Name: "Operator", Pattern: `[\+\-\*]`},
 	{Name: "Whitespace", Pattern: `[ \t\n\r]+`},

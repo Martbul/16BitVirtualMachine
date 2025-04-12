@@ -224,40 +224,81 @@ func (b *BracketedExpr) AsNode() *Node {
 	return DisambiguateOrderOfOperations(node)
 }
 
-type MovLitToRegInstruction struct {
-	Instr string    `parser:"@('mov'|'MOV')"`
+type LitRegInstruction struct {
+	//Instr string `parser:"@(/[a-zA-Z]+/)"` WARN: Doesnt work
+	//	Instr string `parser:"@Instruction"` //WARN: Doesnt work
+	Instr string `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
+	//Instr string `parser:"@Ident"` // Generic identifier instead of hardcoded mnemonic WARN: Doesnt work
+	//Instr string    `parser:"@('add'|'ADD')"` WARN: When i use this it works
 	Arg1  *Expr     `parser:"@@"`
 	Comma string    `parser:"','"`
 	Arg2  *Register `parser:"@@"`
 }
 
-// AsNode converts MovInstruction to Node
-func (m *MovLitToRegInstruction) AsNode() *Node {
+// Fixed AsNode method with proper signature and variable references
+func (instr *LitRegInstruction) AsNode(instructionType string) *Node {
 	return &Node{
 		Type: TypeInstruction,
 		Value: map[string]interface{}{
-			"instruction": "MOV_LIT_REG",
-			"args":        []*Node{m.Arg1.AsNode(), m.Arg2.AsNode()},
+			"instruction": instructionType,
+			"args":        []*Node{instr.Arg1.AsNode(), instr.Arg2.AsNode()},
 		},
 	}
 }
 
-type MovRegToRegInstruction struct {
-	Instr string    `parser:"@('mov'|'MOV')"`
+type RegRegInstruction struct {
+	Instr string `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
+	//Instr string    `parser:"@Ident"` // Generic identifier instead of hardcoded mnemonic
 	Reg1  *Register `parser:"@@"`
 	Comma string    `parser:"','"`
 	Reg2  *Register `parser:"@@"`
 }
 
-func (m *MovRegToRegInstruction) AsNode() *Node {
+// Fixed AsNode method with proper signature and variable references
+func (instr *RegRegInstruction) AsNode(instructionType string) *Node {
 	return &Node{
 		Type: TypeInstruction,
 		Value: map[string]interface{}{
-			"instruction": "MOV_REG_REG",
-			"args":        []*Node{m.Reg1.AsNode(), m.Reg2.AsNode()},
+			"instruction": instructionType,
+			"args":        []*Node{instr.Reg1.AsNode(), instr.Reg2.AsNode()},
 		},
 	}
 }
+
+//type MovLitToRegInstruction struct {
+//	Instr string    `parser:"@('mov'|'MOV')"`
+//	Arg1  *Expr     `parser:"@@"`
+//	Comma string    `parser:"','"`
+//	Arg2  *Register `parser:"@@"`
+//}
+
+// AsNode converts MovInstruction to Node
+//func (m *MovLitToRegInstruction) AsNode() *Node {
+//	return &Node{
+//		Type: TypeInstruction,
+//		Value: map[string]interface{}{
+//			"instruction": "MOV_LIT_REG",
+//			"args":        []*Node{m.Arg1.AsNode(), m.Arg2.AsNode()},
+//		},
+//	}
+//}
+
+//type MovRegToRegInstruction struct {
+//	Instr string    `parser:"@('mov'|'MOV')"`
+//	Reg1  *Register `parser:"@@"`
+//	Comma string    `parser:"','"`
+//	Reg2  *Register `parser:"@@"`
+//}
+
+//func (m *MovRegToRegInstruction) AsNode() *Node {
+//	return &Node{
+//		Type: TypeInstruction,
+//		Value: map[string]interface{}{
+//			"instruction": "MOV_REG_REG",
+///			"args":        []*Node{m.Reg1.AsNode(), m.Reg2.AsNode()},
+//		},
+//	}
+//}
 
 type MovRegToMemInstruction struct {
 	Instr  string           `parser:"@('mov'|'MOV')"`
