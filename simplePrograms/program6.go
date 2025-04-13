@@ -11,9 +11,9 @@ func SimpleProgram6() {
 	//	input := "mov [$42 + !loc - ($05 * ($31 + !var) - $07)], r4"
 
 	//input := "mov $42, &C0DE"
-	input := "add acc, r1"
+	//	input := "add acc, r1"
 	//input := "add $42, r1"
-	//	input := "mov acc, &[!loc + $4200]"
+	input := "mov acc, &[!loc + $4200]"
 	//input := "mov &4200, r1"
 	//input := "mov &r3, acc"
 	//input := "mov $42, &r1, r4"
