@@ -41,13 +41,6 @@ func LitToReg(mnemonic, instructionType string) func(string) (*Node, error) {
 	}
 }
 
-var MovLitToReg = LitToReg("mov", "MOV_LIT_REG")
-var AddLitToReg = LitToReg("add", "ADD_LIT_REG")
-var SubLitToReg = LitToReg("sub", "SUB_LIT_REG")
-var AndLitToReg = LitToReg("and", "AND_LIT_REG")
-var OrLitToReg = LitToReg("or", "OR_LIT_REG")
-var XorLitToReg = LitToReg("xor", "XOR_LIT_REG")
-
 func RegToReg(mnemonic, instructionType string) func(string) (*Node, error) {
 	return func(input string) (*Node, error) {
 		parser, err := participle.Build[RegRegInstruction](
@@ -76,13 +69,6 @@ func RegToReg(mnemonic, instructionType string) func(string) (*Node, error) {
 		return instr.AsNode(instructionType), nil
 	}
 }
-
-var MovRegToReg = RegToReg("mov", "MOV_REG_REG")
-var AddRegToReg = RegToReg("add", "ADD_REG_REG")
-var SubRegToReg = RegToReg("sub", "SUB_REG_REG")
-var AndRegToReg = RegToReg("and", "AND_REG_REG")
-var OrRegToReg = RegToReg("or", "OR_REG_REG")
-var XorRegToReg = RegToReg("xor", "XOR_REG_REG")
 
 func RegToMem(mnemonic, instructionType string) func(string) (*Node, error) {
 	return func(input string) (*Node, error) {
@@ -113,13 +99,6 @@ func RegToMem(mnemonic, instructionType string) func(string) (*Node, error) {
 	}
 }
 
-var MovRegToMem = RegToMem("mov", "MOV_REG_MEM")
-var AddRegToMem = RegToMem("add", "ADD_REG_MEM")
-var SubRegToMem = RegToMem("sub", "SUB_REG_MEM")
-var AndRegToMem = RegToMem("and", "AND_REG_MEM")
-var OrRegToMem = RegToMem("or", "OR_REG_MEM")
-var XorRegToMem = RegToMem("xor", "XOR_REG_MEM")
-
 func MemToReg(mnemonic, instructionType string) func(string) (*Node, error) {
 	return func(input string) (*Node, error) {
 		parser, err := participle.Build[MemRegInstruction](
@@ -148,13 +127,6 @@ func MemToReg(mnemonic, instructionType string) func(string) (*Node, error) {
 		return instr.AsNode(instructionType), nil
 	}
 }
-
-var MovMemToReg = MemToReg("mov", "MOV_MEM_REG")
-var AddMemToReg = MemToReg("add", "ADD_MEM_REG")
-var SubMemToReg = MemToReg("sub", "SUB_MEM_REG")
-var AndMemToReg = MemToReg("and", "AND_MEM_REG")
-var OrMemToReg = MemToReg("or", "OR_MEM_REG")
-var XorMemToReg = MemToReg("xor", "XOR_MEM_REG")
 
 func LitToMem(mnemonic, instructionType string) func(string) (*Node, error) {
 	return func(input string) (*Node, error) {
@@ -185,13 +157,6 @@ func LitToMem(mnemonic, instructionType string) func(string) (*Node, error) {
 	}
 }
 
-var MovLitToMem = LitToMem("mov", "MOV_LIT_MEM")
-var AddLitToMem = LitToMem("add", "ADD_LIT_MEM")
-var SumLitToMem = LitToMem("sub", "SUM_LIT_MEM")
-var AndLitToMem = LitToMem("and", "AND_LIT_MEM")
-var OrLitToMem = LitToMem("or", "OR_LIT_MEM")
-var XorLitToMem = LitToMem("xor", "XOR_LIT_MEM")
-
 func RegPtrToReg(mnemonic, instructionType string) func(string) (*Node, error) {
 	return func(input string) (*Node, error) {
 		parser, err := participle.Build[RegPtrToRegInstruction](
@@ -220,14 +185,6 @@ func RegPtrToReg(mnemonic, instructionType string) func(string) (*Node, error) {
 		return instr.AsNode(instructionType), nil
 	}
 }
-
-var MovRegPtrToReg = RegPtrToReg("mov", "MOV_REG_PTR_REG")
-
-//var AddLitMem = LitToMem("add", "ADD_LIT_MEM")
-//var SumLitMem = LitToMem("sub", "SUM_LIT_MEM")
-//var AndLitMem = LitToMem("and", "AND_LIT_MEM")
-//var OrLitMem = LitToMem("or", "OR_LIT_MEM")
-//var XorLitMem = LitToMem("xor", "XOR_LIT_MEM")
 
 func LitOffToReg(mnemonic, instructionType string) func(string) (*Node, error) {
 	return func(input string) (*Node, error) {
@@ -258,52 +215,92 @@ func LitOffToReg(mnemonic, instructionType string) func(string) (*Node, error) {
 	}
 }
 
-var MovLitOffToReg = LitOffToReg("mov", "MOV_LIT_OFF_REG")
-var AddLitOffToReg = LitOffToReg("add", "ADD_LIT_OFF_REG")
-var SumLitOffToReg = LitOffToReg("sub", "SUM_LIT_OFF_REG")
-var AndLitOffToReg = LitOffToReg("and", "AND_LIT_OFF_REG")
-var OrLitOffToReg = LitOffToReg("or", "OR_LIT_OFF_REG")
-var XorLitOffToReg = LitOffToReg("xor", "XOR_LIT_OFF_REG")
-
-func ParseInstruction(input string) (*Node, error) {
-	var parsers = []Parser{
-		// MOV instructions
-		{"MovLitToReg", MovLitToReg},
-		{"MovRegToReg", MovRegToReg},
-		{"MovRegToMem", MovRegToMem},
-		{"MovMemToReg", MovMemToReg},
-		{"MovLitToMem", MovLitToMem},
-		{"MovRegPtrToReg", MovRegPtrToReg},
-		{"MovLitOffToReg", MovLitOffToReg},
-
-		// ADD instructions
-		{"AddLitToReg", AddLitToReg},
-		{"AddRegToReg", AddRegToReg},
-		{"AddRegToMem", AddRegToMem},
-		{"AddMemToReg", AddMemToReg},
-		{"AddLitToMem", AddLitToMem},
-		//	{"AddRegPtrToReg", AddRegPtrToReg},
-		{"AddLitOffToReg", AddLitOffToReg},
-
-		// Future operations (commented out for now)
-		// {"SubLitToReg",    SubLitToReg},
-		// {"AndLitToReg",    AndLitToReg},
-		// {"OrLitToReg",     OrLitToReg},
-		// {"XorLitToReg",    XorLitToReg},
-		// Note: Consider adding RegToReg versions for each operation above
-	}
-
-	// Try each parser in sequence
-	var errors []string
-	for _, parser := range parsers {
-		node, err := parser.Fn(input)
-		if err == nil {
-			return node, nil
+// NoArg handles operations that don't take any arguments (like HLT, RET)
+func NoArg(mnemonic, instructionType string) func(string) (*Node, error) {
+	return func(input string) (*Node, error) {
+		parser, err := participle.Build[NoArgsInstruction](
+			participle.Lexer(lexerDef),
+			participle.Elide("Whitespace"),
+		)
+		if err != nil {
+			fmt.Printf("Error building parser for %s no-arg: %v\n", mnemonic, err)
+			return nil, err
 		}
-		// Collect error for reporting
-		errors = append(errors, fmt.Sprintf("%s: %v", parser.Name, err))
-	}
 
-	// If we reach here, all parsers failed
-	return nil, fmt.Errorf("failed to parse instruction. Errors: %v", errors)
+		instr, err := parser.ParseString("", input)
+		if err != nil {
+			fmt.Printf("Error parsing with %s no-arg: %v\n", mnemonic, err)
+			return nil, err
+		}
+
+		// Debug what instruction was actually parsed
+		fmt.Printf("Parsed no-arg instruction name: %s, expected: %s\n", instr.Instr, mnemonic)
+
+		// Validate that the parsed instruction matches our expected mnemonic
+		if !strings.EqualFold(instr.Instr, mnemonic) {
+			return nil, fmt.Errorf("expected instruction %s, got %s", mnemonic, instr.Instr)
+		}
+
+		return instr.AsNode(instructionType), nil
+	}
+}
+
+// SingleReg handles operations that operate only on a single register
+func SingleReg(mnemonic, instructionType string) func(string) (*Node, error) {
+	return func(input string) (*Node, error) {
+		parser, err := participle.Build[SingleRegInstruction](
+			participle.Lexer(lexerDef),
+			participle.Elide("Whitespace"),
+		)
+		if err != nil {
+			fmt.Printf("Error building parser for %s single-reg: %v\n", mnemonic, err)
+			return nil, err
+		}
+
+		instr, err := parser.ParseString("", input)
+		if err != nil {
+			fmt.Printf("Error parsing with %s single-reg: %v\n", mnemonic, err)
+			return nil, err
+		}
+
+		// Debug what instruction was actually parsed
+		fmt.Printf("Parsed single-reg instruction name: %s, expected: %s\n", instr.Instr, mnemonic)
+
+		// Validate that the parsed instruction matches our expected mnemonic
+		if !strings.EqualFold(instr.Instr, mnemonic) {
+			return nil, fmt.Errorf("expected instruction %s, got %s", mnemonic, instr.Instr)
+		}
+
+		return instr.AsNode(instructionType), nil
+	}
+}
+
+// SingleReg handles operations that operate only on a single register
+func SingleLit(mnemonic, instructionType string) func(string) (*Node, error) {
+	return func(input string) (*Node, error) {
+		parser, err := participle.Build[SingleLitInstruction](
+			participle.Lexer(lexerDef),
+			participle.Elide("Whitespace"),
+		)
+		if err != nil {
+			fmt.Printf("Error building parser for %s single-lit: %v\n", mnemonic, err)
+			return nil, err
+		}
+
+		instr, err := parser.ParseString("", input)
+		if err != nil {
+			fmt.Printf("Error parsing with %s single-lit: %v\n", mnemonic, err)
+			return nil, err
+		}
+
+		// Debug what instruction was actually parsed
+		fmt.Printf("Parsed single-lit instruction name: %s, expected: %s\n", instr.Instr, mnemonic)
+
+		// Validate that the parsed instruction matches our expected mnemonic
+		if !strings.EqualFold(instr.Instr, mnemonic) {
+			return nil, fmt.Errorf("expected instruction %s, got %s", mnemonic, instr.Instr)
+		}
+
+		return instr.AsNode(instructionType), nil
+	}
 }

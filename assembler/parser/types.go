@@ -227,7 +227,7 @@ func (b *BracketedExpr) AsNode() *Node {
 type LitRegInstruction struct {
 	//Instr string `parser:"@(/[a-zA-Z]+/)"` WARN: Doesnt work
 	//	Instr string `parser:"@Instruction"` //WARN: Doesnt work
-	Instr string `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
+	Instr string `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'POP'|'pop'|'CAL'|'cal'|'RET'|'ret'|'HLT'|'hlt'|'INC'|'inc'|'DEC'|'dec'|'NOT'|'not')"`
 	//Instr string `parser:"@Ident"` // Generic identifier instead of hardcoded mnemonic WARN: Doesnt work
 	//Instr string    `parser:"@('add'|'ADD')"` WARN: When i use this it works
 	Arg1  *Expr     `parser:"@@"`
@@ -247,7 +247,7 @@ func (instr *LitRegInstruction) AsNode(instructionType string) *Node {
 }
 
 type RegRegInstruction struct {
-	Instr string `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
+	Instr string `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'POP'|'pop'|'CAL'|'cal'|'RET'|'ret'|'HLT'|'hlt'|'INC'|'inc'|'DEC'|'dec'|'NOT'|'not')"`
 	//Instr string    `parser:"@Ident"` // Generic identifier instead of hardcoded mnemonic
 	Reg1  *Register `parser:"@@"`
 	Comma string    `parser:"','"`
@@ -265,7 +265,7 @@ func (instr *RegRegInstruction) AsNode(instructionType string) *Node {
 }
 
 type RegMemInstruction struct {
-	Instr  string           `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
+	Instr  string           `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'POP'|'pop'|'CAL'|'cal'|'RET'|'ret'|'HLT'|'hlt'|'INC'|'inc'|'DEC'|'dec'|'NOT'|'not')"`
 	Reg    *Register        `parser:"@@"`
 	Comma  string           `parser:"','"`
 	Memory *MemoryReference `parser:"@@"`
@@ -282,7 +282,7 @@ func (instr *RegMemInstruction) AsNode(instructionType string) *Node {
 }
 
 type MemRegInstruction struct {
-	Instr  string           `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
+	Instr  string           `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'POP'|'pop'|'CAL'|'cal'|'RET'|'ret'|'HLT'|'hlt'|'INC'|'inc'|'DEC'|'dec'|'NOT'|'not')"`
 	Memory *MemoryReference `parser:"@@"`
 	Comma  string           `parser:"','"`
 	Reg    *Register        `parser:"@@"`
@@ -299,7 +299,7 @@ func (instr *MemRegInstruction) AsNode(instructionType string) *Node {
 }
 
 type LitMemInstruction struct {
-	Instr  string            `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
+	Instr  string            `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'POP'|'pop'|'CAL'|'cal'|'RET'|'ret'|'HLT'|'hlt'|'INC'|'inc'|'DEC'|'dec'|'NOT'|'not')"`
 	Lit    *LiteralReference `parser:"@@"`
 	Comma  string            `parser:"','"`
 	Memory *MemoryReference  `parser:"@@"`
@@ -316,7 +316,7 @@ func (instr *LitMemInstruction) AsNode(instructionType string) *Node {
 }
 
 type RegPtrToRegInstruction struct {
-	Instr  string           `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
+	Instr  string           `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'POP'|'pop'|'CAL'|'cal'|'RET'|'ret'|'HLT'|'hlt'|'INC'|'inc'|'DEC'|'dec'|'NOT'|'not')"`
 	RegPtr *RegisterPointer `parser:"@@"`
 	Comma  string           `parser:"','"`
 	Reg    *Register        `parser:"@@"`
@@ -333,7 +333,7 @@ func (instr *RegPtrToRegInstruction) AsNode(instructionType string) *Node {
 }
 
 type LitOffToRegInstruction struct {
-	Instr  string            `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
+	Instr  string            `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'POP'|'pop'|'CAL'|'cal'|'RET'|'ret'|'HLT'|'hlt'|'INC'|'inc'|'DEC'|'dec'|'NOT'|'not')"`
 	Lit    *LiteralReference `parser:"@@"`
 	Comma1 string            `parser:"','"`
 	RegPtr *RegisterPointer  `parser:"@@"`
@@ -349,6 +349,57 @@ func (instr *LitOffToRegInstruction) AsNode(instructionType string) *Node {
 			"args":        []*Node{instr.Lit.AsNode(), instr.RegPtr.AsNode(), instr.Reg.AsNode()},
 		},
 	}
+}
+
+type NoArgsInstruction struct {
+	Instr string `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'POP'|'pop'|'CAL'|'cal'|'RET'|'ret'|'HLT'|'hlt'|'INC'|'inc'|'DEC'|'dec'|'NOT'|'not')"`
+}
+
+func (instr *NoArgsInstruction) AsNode(instructionType string) *Node {
+	return &Node{
+		Type: TypeInstruction,
+		Value: map[string]interface{}{
+			"instruction": instructionType,
+			"args":        []*Node{},
+		},
+	}
+}
+
+// NoArgInstruction represents instructions without arguments (like HLT, RET)
+type NoArgInstruction struct {
+	Instr string `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'POP'|'pop'|'CAL'|'cal'|'RET'|'ret'|'HLT'|'hlt'|'INC'|'inc'|'DEC'|'dec'|'NOT'|'not')"`
+}
+
+type SingleRegInstruction struct {
+	Instr string    `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'POP'|'pop'|'CAL'|'cal'|'RET'|'ret'|'HLT'|'hlt'|'INC'|'inc'|'DEC'|'dec'|'NOT'|'not')"`
+	Reg   *Register `parser:"@@"`
+}
+
+func (instr *SingleRegInstruction) AsNode(instructionType string) *Node {
+	return &Node{
+		Type: TypeInstruction,
+		Value: map[string]interface{}{
+			"instruction": instructionType,
+			"args":        []*Node{instr.Reg.AsNode()},
+		},
+	}
+
+}
+
+type SingleLitInstruction struct {
+	Instr string            `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'POP'|'pop'|'CAL'|'cal'|'RET'|'ret'|'HLT'|'hlt'|'INC'|'inc'|'DEC'|'dec'|'NOT'|'not')"`
+	Lit   *LiteralReference `parser:"@@"`
+}
+
+func (instr *SingleLitInstruction) AsNode(instructionType string) *Node {
+	return &Node{
+		Type: TypeInstruction,
+		Value: map[string]interface{}{
+			"instruction": instructionType,
+			"args":        []*Node{instr.Lit.AsNode()},
+		},
+	}
+
 }
 
 // BinaryOperation represents a binary operation with left operand, operator, and right operand
