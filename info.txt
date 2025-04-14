@@ -12,3 +12,12 @@ A parser is a program that reads text input (like code or commands) and converts
 -lexer - A lexer (short for lexical analyzer) is the first step in a compiler or interpreter pipeline. Its job is to take raw source code — just a string of characters — and break it up into meaningful pieces called tokens.
 
 
+in the  existing code uses the participle parser library to parse various instruction formats like:
+
+Literal to register (LitToReg)
+Register to register (RegToReg)
+Register to memory (RegToMem)
+Memory to register (MemToReg)
+Literal to memory (LitToMem)
+Register pointer to register (RegPtrToReg)
+Literal offset to register (LitOffToReg)

@@ -281,79 +281,59 @@ func (instr *RegMemInstruction) AsNode(instructionType string) *Node {
 	}
 }
 
-//type MovRegToMemInstruction struct {
-//	Instr  string           `parser:"@('mov'|'MOV')"`
-//	Reg    *Register        `parser:"@@"`
-//	Comma  string           `parser:"','"`
-//	Memory *MemoryReference `parser:"@@"`
-//}
-
-//func (m *MovRegToMemInstruction) AsNode() *Node {
-//	return &Node{
-//		Type: TypeInstruction,
-//		Value: map[string]interface{}{
-//			"instruction": "MOV_REG_MEM",
-//			"args":        []*Node{m.Reg.AsNode(), m.Memory.AsNode()},
-//		},
-//	}
-//}
-
-type MovLitToMemInstruction struct {
-	Instr  string            `parser:"@('mov'|'MOV')"`
-	Lit    *LiteralReference `parser:"@@"`
-	Comma  string            `parser:"','"`
-	Memory *MemoryReference  `parser:"@@"`
-}
-
-func (m *MovLitToMemInstruction) AsNode() *Node {
-	return &Node{
-		Type: TypeInstruction,
-		Value: map[string]interface{}{
-			"instruction": "MOV_LIT_MEM",
-			"args":        []*Node{m.Lit.AsNode(), m.Memory.AsNode()},
-		},
-	}
-}
-
-type MovMemToRegInstruction struct {
-	Instr  string           `parser:"@('mov'|'MOV')"`
+type MemRegInstruction struct {
+	Instr  string           `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
 	Memory *MemoryReference `parser:"@@"`
 	Comma  string           `parser:"','"`
 	Reg    *Register        `parser:"@@"`
 }
 
-func (m *MovMemToRegInstruction) AsNode() *Node {
+func (instr *MemRegInstruction) AsNode(instructionType string) *Node {
 	return &Node{
 		Type: TypeInstruction,
 		Value: map[string]interface{}{
-			"instruction": "MOV_MEM_REG",
-			"args":        []*Node{m.Memory.AsNode(), m.Reg.AsNode()},
+			"instruction": instructionType,
+			"args":        []*Node{instr.Memory.AsNode(), instr.Reg.AsNode()},
 		},
 	}
 }
 
-// MovRegPtrToReg specifically handles register pointer to register instructions
-type MovRegPtrToRegInstruction struct {
-	Instr  string           `parser:"@('mov'|'MOV')"`
+type LitMemInstruction struct {
+	Instr  string            `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
+	Lit    *LiteralReference `parser:"@@"`
+	Comma  string            `parser:"','"`
+	Memory *MemoryReference  `parser:"@@"`
+}
+
+func (instr *LitMemInstruction) AsNode(instructionType string) *Node {
+	return &Node{
+		Type: TypeInstruction,
+		Value: map[string]interface{}{
+			"instruction": instructionType,
+			"args":        []*Node{instr.Lit.AsNode(), instr.Memory.AsNode()},
+		},
+	}
+}
+
+type RegPtrToRegInstruction struct {
+	Instr  string           `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
 	RegPtr *RegisterPointer `parser:"@@"`
 	Comma  string           `parser:"','"`
 	Reg    *Register        `parser:"@@"`
 }
 
-// AsNode converts MovRegPtrToReg to Node
-func (m *MovRegPtrToRegInstruction) AsNode() *Node {
+func (instr *RegPtrToRegInstruction) AsNode(instructionType string) *Node {
 	return &Node{
 		Type: TypeInstruction,
 		Value: map[string]interface{}{
-			"instruction": "MOV_REG_PTR_REG",
-			"args":        []*Node{m.RegPtr.AsNode(), m.Reg.AsNode()},
+			"instruction": instructionType,
+			"args":        []*Node{instr.RegPtr.AsNode(), instr.Reg.AsNode()},
 		},
 	}
 }
 
-// MovRegPtrToReg specifically handles register pointer to register instructions
-type MovLitOffToRegInstruction struct {
-	Instr  string            `parser:"@('mov'|'MOV')"`
+type LitOffToRegInstruction struct {
+	Instr  string            `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'CAL'|'cal')"`
 	Lit    *LiteralReference `parser:"@@"`
 	Comma1 string            `parser:"','"`
 	RegPtr *RegisterPointer  `parser:"@@"`
@@ -361,13 +341,12 @@ type MovLitOffToRegInstruction struct {
 	Reg    *Register         `parser:"@@"`
 }
 
-// AsNode converts MovRegPtrToReg to Node
-func (m *MovLitOffToRegInstruction) AsNode() *Node {
+func (instr *LitOffToRegInstruction) AsNode(instructionType string) *Node {
 	return &Node{
 		Type: TypeInstruction,
 		Value: map[string]interface{}{
-			"instruction": "MOV_LIT_OFF_REG",
-			"args":        []*Node{m.Lit.AsNode(), m.RegPtr.AsNode(), m.Reg.AsNode()},
+			"instruction": instructionType,
+			"args":        []*Node{instr.Lit.AsNode(), instr.RegPtr.AsNode(), instr.Reg.AsNode()},
 		},
 	}
 }
