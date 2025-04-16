@@ -173,11 +173,6 @@ var MovLitOffToReg = LitOffToReg("mov", "MOV_LIT_OFF_REG")
 var AddRegToReg = RegToReg("add", "ADD_REG_REG")
 var AddLitToReg = LitToReg("add", "ADD_LIT_REG")
 
-//var AddRegToMem = RegToMem("add", "ADD_REG_MEM")
-//var AddMemToReg = MemToReg("add", "ADD_MEM_REG")
-//var AddLitToMem = LitToMem("add", "ADD_LIT_MEM")
-//var AddLitOffToReg = LitOffToReg("add", "ADD_LIT_OFF_REG")
-
 // SUB
 var SubRegToReg = RegToReg("sub", "SUB_REG_REG")
 var SubLitToReg = LitToReg("sub", "SUB_LIT_REG")
