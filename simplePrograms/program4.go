@@ -2,6 +2,7 @@ package simpleprograms
 
 import (
 	"github.com/martbul/constants"
+	"github.com/martbul/instructions"
 	"github.com/martbul/memory"
 )
 
@@ -36,28 +37,28 @@ func Program4() {
 
 	i := 0
 
-	memoryBytes[i] = constants.PSH_LIT
+	memoryBytes[i] = instructions.PSH_LIT
 	i++
 	memoryBytes[i] = 0x33
 	i++
 	memoryBytes[i] = 0x33
 	i++
 
-	memoryBytes[i] = constants.PSH_LIT
+	memoryBytes[i] = instructions.PSH_LIT
 	i++
 	memoryBytes[i] = 0x22
 	i++
 	memoryBytes[i] = 0x22
 	i++
 
-	memoryBytes[i] = constants.PSH_LIT
+	memoryBytes[i] = instructions.PSH_LIT
 	i++
 	memoryBytes[i] = 0x11
 	i++
 	memoryBytes[i] = 0x11
 	i++
 
-	memoryBytes[i] = constants.MOV_LIT_REG
+	memoryBytes[i] = instructions.MOV_LIT_REG
 	i++
 	memoryBytes[i] = 0x12
 	i++
@@ -66,7 +67,7 @@ func Program4() {
 	memoryBytes[i] = constants.R1
 	i++
 
-	memoryBytes[i] = constants.MOV_LIT_REG
+	memoryBytes[i] = instructions.MOV_LIT_REG
 	i++
 	memoryBytes[i] = 0x56
 	i++
@@ -75,7 +76,7 @@ func Program4() {
 	memoryBytes[i] = constants.R4
 	i++
 
-	memoryBytes[i] = constants.PSH_LIT
+	memoryBytes[i] = instructions.PSH_LIT
 	i++
 	memoryBytes[i] = 0x00
 	i++
@@ -83,7 +84,7 @@ func Program4() {
 	i++
 
 	// Call subroutine (CAL_LIT)
-	memoryBytes[i] = constants.CAL_LIT
+	memoryBytes[i] = instructions.CAL_LIT
 	i++
 	memoryBytes[i] = byte((subroutineAddress & 0xFF00) >> 8) // High byte
 	i++
@@ -91,7 +92,7 @@ func Program4() {
 	i++
 
 	// Push literal values (PSH_LIT)
-	memoryBytes[i] = constants.PSH_LIT
+	memoryBytes[i] = instructions.PSH_LIT
 	i++
 	memoryBytes[i] = 0x44
 	i++
@@ -102,21 +103,21 @@ func Program4() {
 	i = subroutineAddress
 
 	// Push more literals in subroutine
-	memoryBytes[i] = constants.PSH_LIT
+	memoryBytes[i] = instructions.PSH_LIT
 	i++
 	memoryBytes[i] = 0x01
 	i++
 	memoryBytes[i] = 0x02
 	i++
 
-	memoryBytes[i] = constants.PSH_LIT
+	memoryBytes[i] = instructions.PSH_LIT
 	i++
 	memoryBytes[i] = 0x03
 	i++
 	memoryBytes[i] = 0x04
 	i++
 
-	memoryBytes[i] = constants.PSH_LIT
+	memoryBytes[i] = instructions.PSH_LIT
 	i++
 	memoryBytes[i] = 0x05
 	i++
@@ -124,7 +125,7 @@ func Program4() {
 	i++
 
 	// Move literal to register (MOV_LIT_REG)
-	memoryBytes[i] = constants.MOV_LIT_REG
+	memoryBytes[i] = instructions.MOV_LIT_REG
 	i++
 	memoryBytes[i] = 0x07
 	i++
@@ -133,7 +134,7 @@ func Program4() {
 	memoryBytes[i] = constants.R1
 	i++
 
-	memoryBytes[i] = constants.MOV_LIT_REG
+	memoryBytes[i] = instructions.MOV_LIT_REG
 	i++
 	memoryBytes[i] = 0x09
 	i++
@@ -143,7 +144,7 @@ func Program4() {
 	i++
 
 	// Return (RET)
-	memoryBytes[i] = constants.RET
+	memoryBytes[i] = instructions.RET
 	i++
 
 	//	cpu.Debug()

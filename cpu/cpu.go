@@ -7,8 +7,9 @@ package cpu
 import (
 	"fmt"
 	"log"
+	"strconv"
 
-	"github.com/martbul/constants"
+	"github.com/martbul/instructions"
 	"github.com/martbul/memory"
 	memorymapper "github.com/martbul/memoryMapper"
 )
@@ -189,17 +190,24 @@ func (cpu *CPU) PopState() {
 }
 
 // Execute decodes and executes instructions
-func (cpu *CPU) Execute(instruction uint8) (bool, string) {
-	switch instruction {
+func (cpu *CPU) Execute(instr uint8) (bool, string) {
 
-	case constants.MOV_LIT_REG:
+	//WARN: FIX THIS
+	instruction, found := instructions.GetInstructionByName(strconv.Itoa(int(instr)))
+	fmt.Println(instruction)
+	if !found {
+		fmt.Println("INSTRUCTION NOT FOUND ERROR IN CPU PACKAGE")
+	}
+	switch instr {
+
+	case instructions.MOV_LIT_REG:
 		literal := cpu.Fetch16()
 		register := cpu.FetachRegisterIndex()
 		cpu.registers.SetUint16(int(register), literal)
 		return false, ""
 
 		//moving register to register
-	case constants.MOV_REG_REG:
+	case instructions.MOV_REG_REG:
 		registerFrom := cpu.FetachRegisterIndex()
 		registerTo := cpu.FetachRegisterIndex()
 		value := cpu.registers.GetUint16(int(registerFrom))
@@ -207,7 +215,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 	//move register to memory
-	case constants.MOV_REG_MEM:
+	case instructions.MOV_REG_MEM:
 		registerFrom := cpu.FetachRegisterIndex()
 		address := cpu.Fetch16()
 		value := cpu.registers.GetUint16(int(registerFrom))
@@ -217,20 +225,20 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 	//move memory to register
-	case constants.MOV_MEM_REG:
+	case instructions.MOV_MEM_REG:
 		address := cpu.Fetch16()
 		value, _ := cpu.memory.GetUint16(int(address))
 		registerTo := cpu.FetachRegisterIndex()
 		cpu.registers.SetUint16(int(registerTo), value)
 		return false, ""
 
-	case constants.MOV_LIT_MEM:
+	case instructions.MOV_LIT_MEM:
 		value := cpu.Fetch16()
 		address := cpu.Fetch16()
 		cpu.memory.SetUint16(int(address), value)
 		return false, ""
 
-	case constants.MOV_REG_PTR_REG:
+	case instructions.MOV_REG_PTR_REG:
 		r1 := cpu.FetachRegisterIndex() //register we want the vaklue form
 		r2 := cpu.FetachRegisterIndex() //destination regisster
 		ptr := cpu.registers.GetUint16(r1)
@@ -239,7 +247,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 	// move value at [literal + register ] to register
-	case constants.MOV_LIT_OFF_REG:
+	case instructions.MOV_LIT_OFF_REG:
 		baseAddress := cpu.Fetch16()
 		r1 := cpu.FetachRegisterIndex()
 		r2 := cpu.FetachRegisterIndex() //destination reg
@@ -250,7 +258,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 	// add register to register
-	case constants.ADD_REG_REG:
+	case instructions.ADD_REG_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r2 := cpu.FetachRegisterIndex()
 
@@ -265,14 +273,14 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 	//add literal value to register value
-	case constants.ADD_LIT_REG:
+	case instructions.ADD_LIT_REG:
 		literal := cpu.Fetch16()
 		r1 := cpu.FetachRegisterIndex()
 		registerValue := cpu.registers.GetUint16(r1)
 		cpu.SetRegister("acc", literal+registerValue)
 		return false, ""
 
-	case constants.SUB_LIT_REG:
+	case instructions.SUB_LIT_REG:
 		literal := cpu.Fetch16()
 		r1 := cpu.FetachRegisterIndex()
 		registerValue := cpu.registers.GetUint16(r1)
@@ -281,7 +289,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 	// subtract register value from a literal value
-	case constants.SUB_REG_LIT:
+	case instructions.SUB_REG_LIT:
 		r1 := cpu.FetachRegisterIndex()
 		registerValue := cpu.registers.GetUint16(r1)
 		literal := cpu.Fetch16()
@@ -289,7 +297,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		cpu.SetRegister("acc", res)
 		return false, ""
 
-	case constants.SUB_REG_REG:
+	case instructions.SUB_REG_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r2 := cpu.FetachRegisterIndex()
 		registerValue1 := cpu.registers.GetUint16(r1)
@@ -298,7 +306,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		cpu.SetRegister("acc", res)
 		return false, ""
 
-	case constants.MUL_LIT_REG:
+	case instructions.MUL_LIT_REG:
 		literal := cpu.Fetch16()
 		r1 := cpu.FetachRegisterIndex()
 		r1Value := cpu.registers.GetUint16(r1)
@@ -306,7 +314,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		cpu.SetRegister("acc", res)
 		return false, ""
 
-	case constants.MUL_REG_REG:
+	case instructions.MUL_REG_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r2 := cpu.FetachRegisterIndex()
 		registerValue1 := cpu.registers.GetUint16(r1)
@@ -315,14 +323,14 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		cpu.SetRegister("acc", res)
 		return false, ""
 
-	case constants.INC_REG:
+	case instructions.INC_REG:
 		r1 := cpu.FetachRegisterIndex()
 		oldValue := cpu.registers.GetUint16(r1)
 		newValue := oldValue + 1
 		cpu.registers.SetUint16(r1, newValue)
 		return false, ""
 
-	case constants.DEC_REG:
+	case instructions.DEC_REG:
 		r1 := cpu.FetachRegisterIndex()
 		oldValue := cpu.registers.GetUint16(r1)
 		newValue := oldValue - 1
@@ -332,7 +340,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 	// left shift register by literal value (in place)
 	//INFO: Any bits that are outside the boudnaries of 16 are lost
 	//in left shif 9 << 2 is equal to 9 * 2^2
-	case constants.LSF_REG_LIT:
+	case instructions.LSF_REG_LIT:
 		r1 := cpu.FetachRegisterIndex()
 		literal := cpu.Fetch16()
 		registerValue := cpu.registers.GetUint16(r1)
@@ -341,7 +349,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 	// left shift register by register (in place)
-	case constants.LSF_REG_REG:
+	case instructions.LSF_REG_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r2 := cpu.FetachRegisterIndex()
 		registerValue1 := cpu.registers.GetUint16(r1)
@@ -351,7 +359,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 	//INFO: in right shift 9 >> 2 is equal to 9 / 2^2
-	case constants.RSF_REG_LIT:
+	case instructions.RSF_REG_LIT:
 		r1 := cpu.FetachRegisterIndex()
 		literal := cpu.Fetch16()
 		registerValue := cpu.registers.GetUint16(r1)
@@ -360,7 +368,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 	// right shift register by register (in place)
-	case constants.RSF_REG_REG:
+	case instructions.RSF_REG_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r2 := cpu.FetachRegisterIndex()
 		registerValue1 := cpu.registers.GetUint16(r1)
@@ -371,7 +379,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 
 	// and register with literal
 	//INFO: AND takes 2 binary numbers and produce a new binary number wher ieatch place is one where both of the numbers BOTH of the 2 binariy nums have a 1 in the same place, otherwise it is 0(useful for isolating a particular part of a number like the bottom or the top byte)
-	case constants.AND_REG_LIT:
+	case instructions.AND_REG_LIT:
 		r1 := cpu.FetachRegisterIndex()
 		literal := cpu.Fetch16()
 		registerValue := cpu.registers.GetUint16(r1)
@@ -380,7 +388,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		cpu.SetRegister("acc", res)
 		return false, ""
 
-	case constants.AND_REG_REG:
+	case instructions.AND_REG_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r2 := cpu.FetachRegisterIndex()
 		registerValue1 := cpu.registers.GetUint16(r1)
@@ -391,7 +399,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 	//INFO: OR takes 2 binary numbers and produce a new binary number where each place is a one if eather of the numbers have a 1 in that place, otherwise it is a 0.
-	case constants.OR_REG_LIT:
+	case instructions.OR_REG_LIT:
 		r1 := cpu.FetachRegisterIndex()
 		literal := cpu.Fetch16()
 		registerValue := cpu.registers.GetUint16(r1)
@@ -400,7 +408,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		cpu.SetRegister("acc", res)
 		return false, ""
 
-	case constants.OR_REG_REG:
+	case instructions.OR_REG_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r2 := cpu.FetachRegisterIndex()
 		registerValue1 := cpu.registers.GetUint16(r1)
@@ -414,7 +422,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 	// A ^ B = C
 	// A ^ C = B
 	// B ^ C = A
-	case constants.XOR_REG_LIT:
+	case instructions.XOR_REG_LIT:
 		r1 := cpu.FetachRegisterIndex()
 		literal := cpu.Fetch16()
 		registerValue := cpu.registers.GetUint16(r1)
@@ -423,7 +431,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		cpu.SetRegister("acc", res)
 		return false, ""
 
-	case constants.XOR_REG_REG:
+	case instructions.XOR_REG_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r2 := cpu.FetachRegisterIndex()
 		registerValue1 := cpu.registers.GetUint16(r1)
@@ -434,7 +442,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 	//INFO: NOT flips all bits in a number 0->1 and 1->0
-	case constants.NOT:
+	case instructions.NOT:
 		r1 := cpu.FetachRegisterIndex()
 		registerValue := cpu.registers.GetUint16(r1)
 		res := ^registerValue & 0xffff // selecting just the bottmo 16 bits so that the number is not abouve the 16 bits the vm works on
@@ -442,7 +450,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//jump if literal not equal
-	case constants.JMP_NOT_EQ:
+	case instructions.JMP_NOT_EQ:
 		value := cpu.Fetch16()
 		address := cpu.Fetch16()
 
@@ -452,7 +460,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//jump if register not equal
-	case constants.JNE_REG:
+	case instructions.JNE_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r1Value := cpu.registers.GetUint16(r1)
 		addressToJupmTo := cpu.Fetch16()
@@ -463,7 +471,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//jump if literal equal
-	case constants.JEQ_LIT:
+	case instructions.JEQ_LIT:
 		value := cpu.Fetch16()
 		address := cpu.Fetch16()
 
@@ -473,7 +481,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//jump if register equal
-	case constants.JEQ_REG:
+	case instructions.JEQ_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r1Value := cpu.registers.GetUint16(r1)
 		addressToJupmTo := cpu.Fetch16()
@@ -484,7 +492,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//jump if literal less than
-	case constants.JLT_LIT:
+	case instructions.JLT_LIT:
 		value := cpu.Fetch16()
 		address := cpu.Fetch16()
 
@@ -494,7 +502,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//jump if register less than
-	case constants.JLT_REG:
+	case instructions.JLT_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r1Value := cpu.registers.GetUint16(r1)
 		addressToJupmTo := cpu.Fetch16()
@@ -505,7 +513,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//jump if literal greater than
-	case constants.JGT_LIT:
+	case instructions.JGT_LIT:
 		value := cpu.Fetch16()
 		address := cpu.Fetch16()
 
@@ -515,7 +523,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//jump if register greater than
-	case constants.JGT_REG:
+	case instructions.JGT_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r1Value := cpu.registers.GetUint16(r1)
 		addressToJupmTo := cpu.Fetch16()
@@ -526,7 +534,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//jump if literal less than or equal to
-	case constants.JLE_LIT:
+	case instructions.JLE_LIT:
 		value := cpu.Fetch16()
 		address := cpu.Fetch16()
 
@@ -536,7 +544,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//jump if register less than or equal to
-	case constants.JLE_REG:
+	case instructions.JLE_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r1Value := cpu.registers.GetUint16(r1)
 		addressToJupmTo := cpu.Fetch16()
@@ -547,7 +555,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//jump if literal greater than or equal to
-	case constants.JGE_LIT:
+	case instructions.JGE_LIT:
 		value := cpu.Fetch16()
 		address := cpu.Fetch16()
 
@@ -557,7 +565,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//jump if register greater than or equal to
-	case constants.JGE_REG:
+	case instructions.JGE_REG:
 		r1 := cpu.FetachRegisterIndex()
 		r1Value := cpu.registers.GetUint16(r1)
 		addressToJupmTo := cpu.Fetch16()
@@ -568,24 +576,24 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 	//push literal value on the stack
-	case constants.PSH_LIT:
+	case instructions.PSH_LIT:
 		value := cpu.Fetch16()
 		cpu.Push(value)
 		return false, ""
 
 	//push val from register on the stack
-	case constants.PSH_REG:
+	case instructions.PSH_REG:
 		registerIndex := cpu.FetachRegisterIndex()
 		cpu.Push(cpu.registers.GetUint16(registerIndex))
 		return false, ""
 
-	case constants.POP:
+	case instructions.POP:
 		registerIndex := cpu.FetachRegisterIndex()
 		value := cpu.Pop()
 		cpu.registers.SetUint16(registerIndex, value)
 		return false, ""
 
-	case constants.CAL_LIT:
+	case instructions.CAL_LIT:
 		address := cpu.Fetch16()
 
 		//saving the cpu state
@@ -594,7 +602,7 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		cpu.SetRegister("ip", address)
 		return false, ""
 
-	case constants.CAL_REG:
+	case instructions.CAL_REG:
 		registerIndex := cpu.FetachRegisterIndex()
 		address := cpu.registers.GetUint16(registerIndex)
 		cpu.PushState()
@@ -602,16 +610,16 @@ func (cpu *CPU) Execute(instruction uint8) (bool, string) {
 		return false, ""
 
 		//return from subroutinw
-	case constants.RET:
+	case instructions.RET:
 		cpu.PopState()
 		return false, ""
 
-	case constants.HLT:
+	case instructions.HLT:
 		return true, "manual hlt"
 
 		// default case to handle unknown instructions
 	default:
-		fmt.Printf("Unknown instruction: 0x%X at address: 0x%X\n", instruction, cpu.GetRegister("ip")-1)
+		fmt.Printf("Unknown instruction: 0x%X at address: 0x%X\n", instr, cpu.GetRegister("ip")-1)
 		return true, "error hlt"
 
 	}

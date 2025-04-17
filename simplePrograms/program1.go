@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/martbul/constants"
+	"github.com/martbul/instructions"
 	"github.com/martbul/memory"
 )
 
@@ -18,7 +19,7 @@ func Program1() {
 	i := 0
 
 	// Move Literal 0x1234 → R1
-	memoryBytes[i] = constants.MOV_LIT_REG
+	memoryBytes[i] = instructions.MOV_LIT_REG
 	i++
 	memoryBytes[i] = 0x12 // High byte of 0x1234
 	i++
@@ -28,7 +29,7 @@ func Program1() {
 	i++
 
 	// Move Literal 0xABCD → R2
-	memoryBytes[i] = constants.MOV_LIT_REG
+	memoryBytes[i] = instructions.MOV_LIT_REG
 	i++
 	memoryBytes[i] = 0xAB
 	i++
@@ -38,7 +39,7 @@ func Program1() {
 	i++
 
 	// Add R1 + R2 → ACC
-	memoryBytes[i] = constants.ADD_REG_REG
+	memoryBytes[i] = instructions.ADD_REG_REG
 	i++
 	memoryBytes[i] = constants.R1
 	i++
@@ -46,7 +47,7 @@ func Program1() {
 	i++
 
 	// Move ACC → Memory at address 0x0100
-	memoryBytes[i] = constants.MOV_REG_MEM
+	memoryBytes[i] = instructions.MOV_REG_MEM
 	i++
 	memoryBytes[i] = constants.ACC
 	i++

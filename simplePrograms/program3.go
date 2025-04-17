@@ -2,6 +2,7 @@ package simpleprograms
 
 import (
 	"github.com/martbul/constants"
+	"github.com/martbul/instructions"
 	"github.com/martbul/memory"
 )
 
@@ -24,7 +25,7 @@ func Program3() {
 
 	i := 0
 
-	memoryBytes[i] = constants.MOV_LIT_REG
+	memoryBytes[i] = instructions.MOV_LIT_REG
 	i++
 	memoryBytes[i] = 0x51
 	i++
@@ -33,7 +34,7 @@ func Program3() {
 	memoryBytes[i] = constants.R1
 	i++
 
-	memoryBytes[i] = constants.MOV_LIT_REG
+	memoryBytes[i] = instructions.MOV_LIT_REG
 	i++
 	memoryBytes[i] = 0x42
 	i++
@@ -42,22 +43,22 @@ func Program3() {
 	memoryBytes[i] = constants.R2
 	i++
 
-	memoryBytes[i] = constants.PSH_REG
+	memoryBytes[i] = instructions.PSH_REG
 	i++
 	memoryBytes[i] = constants.R1
 	i++
 
-	memoryBytes[i] = constants.PSH_REG
+	memoryBytes[i] = instructions.PSH_REG
 	i++
 	memoryBytes[i] = constants.R2
 	i++
 
-	memoryBytes[i] = constants.POP
+	memoryBytes[i] = instructions.POP
 	i++
 	memoryBytes[i] = constants.R1
 	i++
 
-	memoryBytes[i] = constants.POP
+	memoryBytes[i] = instructions.POP
 	i++
 	memoryBytes[i] = constants.R2
 	i++

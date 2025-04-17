@@ -4,6 +4,7 @@ import (
 	"github.com/martbul/constants"
 	cpuPack "github.com/martbul/cpu"
 	"github.com/martbul/devices"
+	"github.com/martbul/instructions"
 	"github.com/martbul/memory"
 	memMapper "github.com/martbul/memoryMapper"
 )
@@ -44,7 +45,7 @@ func Program5() {
 	}
 
 	// Writing the halt instruction to stop the program
-	memoryBytes[ip] = constants.HLT
+	memoryBytes[ip] = instructions.HLT
 	ip++
 
 	cpu.Run() //INFO: Starts executing the instructions stored in memory.:
@@ -54,7 +55,7 @@ func Program5() {
 // Function to write a character to the screen memory
 func writeCharToScreen(memoryBytes *[]byte, ip *int, char rune, command int, position int) {
 	// Writing MOV_LIT_REG instruction (load immediate value into register)
-	(*memoryBytes)[*ip] = constants.MOV_LIT_REG
+	(*memoryBytes)[*ip] = instructions.MOV_LIT_REG
 	*ip++
 
 	// Writing 0x00 as high byte (it's part of the instruction)
@@ -70,7 +71,7 @@ func writeCharToScreen(memoryBytes *[]byte, ip *int, char rune, command int, pos
 	*ip++
 
 	// Writing MOV_REG_MEM instruction (move value from register to memory)
-	(*memoryBytes)[*ip] = constants.MOV_REG_MEM
+	(*memoryBytes)[*ip] = instructions.MOV_REG_MEM
 	*ip++
 
 	// Writing register R1 to memory address 0x3000 (mapped to screen)
