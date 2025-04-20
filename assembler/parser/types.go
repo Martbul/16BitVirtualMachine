@@ -7,6 +7,7 @@ type NodeType string
 // Node types corresponding to JavaScript asType values
 const (
 	TypeRegister          NodeType = "REGISTER"
+	TypeLabel             NodeType = "LABEL"
 	TypeRegisterPointer   NodeType = "REGISTER_POINTER"
 	TypeHexLiteral        NodeType = "HEX_LITERAL"
 	TypeVariable          NodeType = "VARIABLE"

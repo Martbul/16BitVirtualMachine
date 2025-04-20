@@ -7,7 +7,6 @@ package cpu
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/martbul/instructions"
 	"github.com/martbul/memory"
