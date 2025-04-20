@@ -191,14 +191,13 @@ func (cpu *CPU) PopState() {
 
 // Execute decodes and executes instructions
 func (cpu *CPU) Execute(instr uint8) (bool, string) {
-
-	//WARN: FIX THIS
-	instruction, found := instructions.GetInstructionByName(strconv.Itoa(int(instr)))
-	fmt.Println(instruction)
+	// Look up the instruction by opcode
+	_, found := instructions.GetInstructionByOpcode(instr)
 	if !found {
-		fmt.Println("INSTRUCTION NOT FOUND ERROR IN CPU PACKAGE")
+		return true, fmt.Sprintf("Unknown instruction: 0x%X", instr)
 	}
 	switch instr {
+	//WARN: basicly tutorialman doesnt have the opcodes as a constants so he uses the object he is making, hopefully my approach is also fine
 
 	case instructions.MOV_LIT_REG:
 		literal := cpu.Fetch16()
