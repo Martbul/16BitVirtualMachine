@@ -66,11 +66,10 @@ func (cpu *CPU) Debug() {
 }
 
 func (cpu *CPU) ViewMemoryAt(address int, n ...int) {
-	//return: 0x0f01: 0x04 0xA3 0xFE 0x13 0x0
 	nDefaultVal := 8
 
 	if len(n) > 0 {
-		nDefaultVal = n[0] // Use the provided value if given
+		nDefaultVal = n[0]
 	}
 
 	nextNBytes := make([]string, nDefaultVal)
@@ -84,7 +83,6 @@ func (cpu *CPU) ViewMemoryAt(address int, n ...int) {
 	fmt.Printf("0x%04X: %s\n", address, nextNBytes)
 }
 
-// GetRegister gets the value of a register
 func (cpu *CPU) GetRegister(name string) uint16 {
 	offset, exists := cpu.registerMap[name]
 	if !exists {
@@ -93,7 +91,6 @@ func (cpu *CPU) GetRegister(name string) uint16 {
 	return cpu.registers.GetUint16(offset)
 }
 
-// SetRegister sets the value of a register
 func (cpu *CPU) SetRegister(name string, value uint16) {
 	offset, exists := cpu.registerMap[name]
 	if !exists {

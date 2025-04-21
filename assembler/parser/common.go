@@ -16,7 +16,7 @@ var lexerDef = lexer.MustSimple([]lexer.SimpleRule{
 	{Name: "Ident", Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`},
 	{Name: "Operator", Pattern: `[\+\-\*]`},
 	{Name: "Whitespace", Pattern: `[ \t\n\r]+`},
-	{Name: "Punct", Pattern: `[\[\],!$&]`}, // Make sure & is included here
+	{Name: "Punct", Pattern: `[\[\],!$&]`},
 })
 
 // Upper or lowercase string helpers
@@ -36,20 +36,16 @@ func CreateBinaryOperation(a, op, b *Node) *Node {
 	}
 }
 
-// DeepLog prints a structure with full depth (similar to JS deepLog)
 func DeepLog(data interface{}) {
-	// Marshal the data to JSON with indentation
 	jsonBytes, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to marshal data: %v\n", err)
 		return
 	}
 
-	// Print the JSON representation
 	fmt.Println(string(jsonBytes))
 }
 
-// PrettyPrintNode prints a Node and its children with proper indentation
 func PrettyPrintNode(node *Node) {
 	jsonBytes, err := json.MarshalIndent(node, "", "  ")
 	if err != nil {

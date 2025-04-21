@@ -4,7 +4,6 @@ import (
 	"fmt"
 )
 
-// ParseInstruction tries all instruction parsers in sequence
 func ParseInstruction(input string) (*Node, error) {
 	parsers := []Parser{
 		// MOV instructions
@@ -92,11 +91,10 @@ func ParseInstruction(input string) (*Node, error) {
 		errors = append(errors, fmt.Sprintf("%s: %v", parser.Name, err))
 	}
 
-	// If we reach here, all parsers failed
+	// all parsers failed
 	return nil, fmt.Errorf("failed to parse instruction. Errors: %v", errors)
 }
 
-// MUL instructions
 func RegToReg2(mnemonic, instructionType string) func(string) (*Node, error) {
 	return RegToReg(mnemonic, instructionType)
 }
@@ -140,6 +138,7 @@ func ParseInstructionGeneral(input string) (*Node, error) {
 	}); err == nil {
 		return node, nil
 	}
+	//WARN: SOMETHING HERE IS WRONG(CHECK CHECK!!!)
 
 	// Continue with other instruction groups
 	// ... (similar pattern for other instruction types)
