@@ -21,3 +21,6 @@ Memory to register (MemToReg)
 Literal to memory (LitToMem)
 Register pointer to register (RegPtrToReg)
 Literal offset to register (LitOffToReg)
+
+
+Bank switching is a technique used to access more memory than the CPU can normally address directly.

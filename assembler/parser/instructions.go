@@ -99,10 +99,7 @@ func RegToReg2(mnemonic, instructionType string) func(string) (*Node, error) {
 	return RegToReg(mnemonic, instructionType)
 }
 
-// ParseInstructionGeneral provides a choice-based parser similar to the JS version
 func ParseInstructionGeneral(input string) (*Node, error) {
-	// Try each parser in a way similar to the JS choice mechanism
-	// First try MOV
 	if node, err := tryParserGroup(input, []Parser{
 		{"MovRegToReg", MovRegToReg},
 		{"MovLitToReg", MovLitToReg},
@@ -115,33 +112,136 @@ func ParseInstructionGeneral(input string) (*Node, error) {
 		return node, nil
 	}
 
-	// Then try ADD
 	if node, err := tryParserGroup(input, []Parser{
 		{"AddRegToReg", AddRegToReg},
 		{"AddLitToReg", AddLitToReg},
 	}); err == nil {
 		return node, nil
 	}
-
-	// Then try SUB
 	if node, err := tryParserGroup(input, []Parser{
 		{"SubRegToReg", SubRegToReg},
 		{"SubLitToReg", SubLitToReg},
 	}); err == nil {
 		return node, nil
 	}
-
-	// Then try MUL
 	if node, err := tryParserGroup(input, []Parser{
 		{"MulRegToReg", MulRegToReg},
 		{"MulLitToReg", MulLitToReg},
 	}); err == nil {
 		return node, nil
 	}
-	//WARN: SOMETHING HERE IS WRONG(CHECK CHECK!!!)
 
-	// Continue with other instruction groups
-	// ... (similar pattern for other instruction types)
+	if node, err := tryParserGroup(input, []Parser{
+		{"LsfRegToReg", LsfRegToReg},
+		{"LsfLitToReg", LsfLitToReg},
+	}); err == nil {
+		return node, nil
+	}
+
+	if node, err := tryParserGroup(input, []Parser{
+		{"RsfRegToReg", RsfRegToReg},
+		{"RsfLitToReg", RsfLitToReg},
+	}); err == nil {
+		return node, nil
+	}
+
+	if node, err := tryParserGroup(input, []Parser{
+		{"AndRegToReg", AndRegToReg},
+		{"AndLitToReg", AndLitToReg},
+	}); err == nil {
+		return node, nil
+	}
+
+	if node, err := tryParserGroup(input, []Parser{
+		{"OrRegToReg", OrRegToReg},
+		{"OrLitToReg", OrLitToReg},
+	}); err == nil {
+		return node, nil
+	}
+
+	if node, err := tryParserGroup(input, []Parser{
+		{"XorRegToReg", XorRegToReg},
+		{"XorLitToReg", XorLitToReg},
+	}); err == nil {
+		return node, nil
+	}
+
+	if node, err := tryParserGroup(input, []Parser{
+		{"IncReg", IncReg},
+		{"DecReg", DecReg},
+		{"NotReg", NotReg},
+	}); err == nil {
+		return node, nil
+	}
+
+	if node, err := tryParserGroup(input, []Parser{
+		{"JeqReg", JeqReg},
+		{"JeqLit", JeqLit},
+	}); err == nil {
+		return node, nil
+	}
+
+	if node, err := tryParserGroup(input, []Parser{
+		{"JneReg", JneReg},
+		{"JneLit", JneLit},
+	}); err == nil {
+		return node, nil
+	}
+
+	if node, err := tryParserGroup(input, []Parser{
+		{"JltReg", JltReg},
+		{"JltLit", JltLit},
+	}); err == nil {
+		return node, nil
+	}
+
+	if node, err := tryParserGroup(input, []Parser{
+		{"JgtReg", JgtReg},
+		{"JgtLit", JgtLit},
+	}); err == nil {
+		return node, nil
+	}
+
+	// Try jump less than or equal operations
+	if node, err := tryParserGroup(input, []Parser{
+		{"JleReg", JleReg},
+		{"JleLit", JleLit},
+	}); err == nil {
+		return node, nil
+	}
+
+	// Try jump greater than or equal operations
+	if node, err := tryParserGroup(input, []Parser{
+		{"JgeReg", JgeReg},
+		{"JgeLit", JgeLit},
+	}); err == nil {
+		return node, nil
+	}
+
+	// Try stack operations
+	if node, err := tryParserGroup(input, []Parser{
+		{"PshLit", PshLit},
+		{"PshReg", PshReg},
+		{"PopReg", PopReg},
+	}); err == nil {
+		return node, nil
+	}
+
+	// Try call operations
+	if node, err := tryParserGroup(input, []Parser{
+		{"CalLit", CalLit},
+		{"CalReg", CalReg},
+	}); err == nil {
+		return node, nil
+	}
+
+	// Try no-arg operations
+	if node, err := tryParserGroup(input, []Parser{
+		{"Ret", Ret},
+		{"Hlt", Hlt},
+	}); err == nil {
+		return node, nil
+	}
 
 	// If all fails, return an error
 	return nil, fmt.Errorf("no parser matched the input: %s", input)

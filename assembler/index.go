@@ -7,23 +7,24 @@ import (
 
 	"github.com/martbul/assembler/parser"
 	"github.com/martbul/instructions"
+	"github.com/martbul/registers"
 )
 
 // RegisterMap maps register names to their numeric codes
-var RegisterMap = map[string]byte{
-	"ip":  0,
-	"acc": 1,
-	"r1":  2,
-	"r2":  3,
-	"r3":  4,
-	"r4":  5,
-	"r5":  6,
-	"r6":  7,
-	"r7":  8,
-	"r8":  9,
-	"sp":  10,
-	"fp":  11,
-}
+//v////ar RegisterMap = map[string]byte{
+//	"ip":  0,
+//	"acc": 1,
+//	"r1":  2,
+///	"r2":  3,
+//	"r3":  4,
+//	"r4":  5,
+///	"r5":  6,
+//	"r6":  7,
+//	"r7":  8,
+//	"r8":  9,
+//	"sp":  10,
+//	"fp":  11,
+//}
 
 func AssembleProgram(program []string) {
 	programText := strings.Join(program, "\n")
@@ -167,12 +168,12 @@ func encodeLit8(machineCode *[]byte, node *parser.Node, labels map[string]int) {
 // encodeReg encodes a register reference
 func encodeReg(machineCode *[]byte, node *parser.Node) {
 	regName := strings.ToLower(node.Value.(string))
-	regCode, exists := RegisterMap[regName]
+	regCode, exists := registers.Map[regName]
 	if !exists {
 		fmt.Fprintf(os.Stderr, "Error: unknown register '%s'\n", regName)
 		os.Exit(1)
 	}
-	*machineCode = append(*machineCode, regCode)
+	*machineCode = append(*machineCode, byte(regCode))
 }
 
 // encodeLitOrMem encodes a literal or memory address

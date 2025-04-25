@@ -56,7 +56,6 @@ func Program1() {
 	memoryBytes[i] = 0x00
 	i++
 
-	// ✅ Debug: Print the written instructions before execution
 	fmt.Println("Instruction Memory:", memoryBytes[:i])
 
 	// Debug initial state

@@ -11,6 +11,7 @@ import (
 	"github.com/martbul/instructions"
 	"github.com/martbul/memory"
 	memorymapper "github.com/martbul/memoryMapper"
+	"github.com/martbul/registers"
 )
 
 //register hold state in the CPU
@@ -26,13 +27,8 @@ type CPU struct {
 }
 
 func NewCPU(mem *memorymapper.MemoryMapper) *CPU {
-	registerNames := []string{
-		"ip", "acc",
-		"r1", "r2", "r3", "r4",
-		"r5", "r6", "r7", "r8",
-		"sp", "fp",
-	}
 
+	registerNames := registers.Registers
 	// Create registers memory space with 2 bytes per register
 	registers := memory.NewDataView(len(registerNames) * 2)
 	registerMap := make(map[string]int)
