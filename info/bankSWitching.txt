@@ -1,0 +1,10 @@
+Overview
+
+createBankedMemory creates a memory management system with multiple banks that the CPU can switch between, allowing more total memory than could fit in a single address space.
+
+Allocates n separate memory banks
+Each bank is a byte slice of size bankSize
+These are the raw memory buffers that will hold data
+
+Wraps each raw memory bank in a bytes.Buffer
+This provides methods for reading and writing data

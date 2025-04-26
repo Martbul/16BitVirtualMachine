@@ -1,0 +1,4 @@
+============	CONCEPTS USED	=============
+
+custom assembly parsing
+bank switching
