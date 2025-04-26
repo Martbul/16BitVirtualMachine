@@ -1,0 +1,11 @@
+Overview
+
+Mechanisum that allowed code to be interupted, ether by enxternal infuence or sotware like instruction/
+
+the interupt is a 16 but register that is mask and every bit is set to 1. Every bit is used to enable or disable the interupt handler at a corespondeing index
+
+VISUALIZATION
+
+
+1 2 3 4 5 6 7 8 9 A B C D E F G    - a 16 bit register
+1 1 0 1 1 1 0 1 0 0 0 1 1 1 0 1	   - the interupt registr that is masing the register ontop

@@ -19,15 +19,20 @@ import (
 //registers are small peice of memory
 
 type CPU struct {
-	memory         *memorymapper.MemoryMapper
-	registers      *memory.DataView
-	registerMap    map[string]int
-	registerNames  []string
-	stackFrameSize int
+	memory                *memorymapper.MemoryMapper
+	registers             *memory.DataView
+	registerMap           map[string]int
+	registerNames         []string
+	stackFrameSize        int
+	interuptVectorAddress int
+	isInInteruptedHandler bool
 }
 
-func NewCPU(mem *memorymapper.MemoryMapper) *CPU {
-
+func NewCPU(mem *memorymapper.MemoryMapper, interuptVectorAddress ...int) *CPU {
+	vector := 0xFFFE // default interupVectorAddress
+	if len(interuptVectorAddress) > 0 {
+		vector = interuptVectorAddress[0]
+	}
 	registerNames := registers.Registers
 	// Create registers memory space with 2 bytes per register
 	registers := memory.NewDataView(len(registerNames) * 2)
@@ -39,16 +44,20 @@ func NewCPU(mem *memorymapper.MemoryMapper) *CPU {
 	stackFrameSize := 0
 
 	cpu := &CPU{
-		memory:         mem,
-		registerNames:  registerNames,
-		registers:      registers,
-		registerMap:    registerMap,
-		stackFrameSize: stackFrameSize,
+		memory:                mem,
+		registerNames:         registerNames,
+		registers:             registers,
+		registerMap:           registerMap,
+		stackFrameSize:        stackFrameSize,
+		interuptVectorAddress: vector,
+		isInInteruptedHandler: false,
 	}
 
 	// Stack grows downward, so set SP and FP at the end of memory
 	cpu.SetRegister("sp", 0xffff-1)
 	cpu.SetRegister("fp", 0xffff-1)
+
+	cpu.SetRegister("im", 0xffff)
 
 	return cpu
 }
@@ -189,7 +198,16 @@ func (cpu *CPU) Execute(instr uint8) (bool, string) {
 		return true, fmt.Sprintf("Unknown instruction: 0x%X", instr)
 	}
 	switch instr {
-	//WARN: basicly tutorialman doesnt have the opcodes as a constants so he uses the object he is making, hopefully my approach is also fine
+
+	//software triggered interupt
+	case instructions.INT:
+		interuptValue := cpu.Fetch16()
+		cpu.HandleInterupt(interuptValue)
+		return false, ""
+	case instructions.RET_INT:
+		cpu.isInInteruptedHandler = false
+		cpu.PopState()
+		return false, ""
 
 	case instructions.MOV_LIT_REG:
 		literal := cpu.Fetch16()
@@ -626,8 +644,35 @@ func (cpu *CPU) Run() {
 	for {
 		isRunning, _ := cpu.Step()
 		if isRunning {
-			//fmt.Println(hltReason)
 			break
 		}
 	}
+}
+
+func (cpu *CPU) HandleInterupt(value uint16) {
+	//INFO: 0xf = 15 in decimal
+	interuptVectorIndex := value % 0xf
+
+	isUnmasked := (1<<interuptVectorIndex)&cpu.GetRegister("im") != 0
+
+	if !isUnmasked {
+		return
+	}
+
+	addressPoninter := cpu.interuptVectorAddress + (int(value) * 2)
+	address, err := cpu.memory.GetUint16(addressPoninter)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	if !cpu.isInInteruptedHandler {
+		// push 0 to the stack for the number of arguments
+		// 0 indicates that there are no arguments beeing pased via the stack
+		cpu.Push(0)
+		cpu.PushState()
+	}
+
+	cpu.isInInteruptedHandler = true
+	cpu.SetRegister("ip", address) // seting the instruction ponter to the of the interup vectoe
+
 }

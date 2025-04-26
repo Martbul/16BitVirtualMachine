@@ -40,6 +40,9 @@ const (
 )
 
 const (
+	INT     = 0xFD
+	RET_INT = 0xFC
+
 	MOV_LIT_REG     = 0x10 //0x10 is opcode(it is 16 decimal). Each instruction needs an uinique identifiesr(opcode) in machine code
 	MOV_REG_REG     = 0x11
 	MOV_REG_MEM     = 0x12
@@ -101,6 +104,8 @@ type MetaData struct {
 }
 
 var Instructions = []MetaData{
+	{Instruction: "INT", Opcode: 0xFD, Type: SingleLit, Size: SizeSingleLit, Mnemonic: "int"},
+	{Instruction: "RET_INT", Opcode: 0xFC, Type: NoArgs, Size: SizeNoArgs, Mnemonic: "rti"},
 	{Instruction: "MOV_LIT_REG", Opcode: 0x10, Type: LitReg, Size: SizeLitReg, Mnemonic: "mov"},
 	{Instruction: "MOV_REG_REG", Opcode: 0x11, Type: RegReg, Size: SizeRegReg, Mnemonic: "mov"},
 	{Instruction: "MOV_REG_MEM", Opcode: 0x12, Type: RegMem, Size: SizeRegMem, Mnemonic: "mov"},
