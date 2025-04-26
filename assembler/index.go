@@ -3,6 +3,7 @@ package assembler
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/martbul/assembler/parser"
@@ -27,7 +28,7 @@ func AssembleProgram(program []string) {
 
 	// Initialize machine code array and labels map
 	machineCode := []byte{}
-	labels := make(map[string]int)
+	symbolicNames := make(map[string]int)
 	currentAddress := 0
 
 	// First pass: resolve labels
@@ -38,13 +39,36 @@ func AssembleProgram(program []string) {
 				fmt.Fprintf(os.Stderr, "Invalid label format\n")
 				os.Exit(1)
 			}
-			labels[labelName] = currentAddress
+			symbolicNames[labelName] = currentAddress
+		} else if node.Type == "CONSTANT" {
+
+			//WARN: NO IDEA WHAT TO DO
+			//INFO: THE JS VERSION:
+			// symbolicNames[node.value.name] = parseInt(node.value.value.value,16) & 0xffff
+			constantValue := node.Value.(map[string]interface{})
+			constantName := constantValue["name"].(string)
+
+			// Extract the value from the nested structure
+			valueMap := constantValue["value"].(map[string]interface{})
+			hexValue := valueMap["value"].(string)
+
+			// Parse the hex value and mask to 16 bits (& 0xffff)
+			var intValue int64
+			intValue, err := strconv.ParseInt(hexValue, 16, 32)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error parsing constant value: %v\n", err)
+				os.Exit(1)
+			}
+
+			// Store the value in the symbolicNames map
+			symbolicNames[constantName] = int(intValue & 0xffff)
+
 		} else if node.Type == "DATA_DECLARATION" {
 			// Process data declaration
 			dataValue := node.Value.(map[string]interface{})
 			dataName := dataValue["name"].(string)
 			// Store the address where this data begins
-			labels[dataName] = currentAddress
+			symbolicNames[dataName] = currentAddress
 
 			// Increment address based on data size and number of values
 			dataSize := dataValue["size"].(int)
@@ -71,7 +95,7 @@ func AssembleProgram(program []string) {
 	// Second pass: encode instructions
 	for _, node := range parsedNodes {
 		// Skip labels in second pass
-		if node.Type == "LABEL" {
+		if node.Type == "LABEL" || node.Type == "CONSTANT" {
 			continue
 		} else if node.Type == "DATA_DECLARATION" {
 			// Encode data values
@@ -107,27 +131,27 @@ func AssembleProgram(program []string) {
 		// Encode arguments based on instruction type
 		switch metadata.Type {
 		case instructions.LitReg, instructions.MemReg:
-			encodeLitOrMem(&machineCode, args[0], labels)
+			encodeLitOrMem(&machineCode, args[0], symbolicNames)
 			encodeReg(&machineCode, args[1])
 
 		case instructions.RegLit8:
 			encodeReg(&machineCode, args[0])
-			encodeLit8(&machineCode, args[1], labels)
+			encodeLit8(&machineCode, args[1], symbolicNames)
 
 		case instructions.RegLit, instructions.RegMem:
 			encodeReg(&machineCode, args[0])
-			encodeLitOrMem(&machineCode, args[1], labels)
+			encodeLitOrMem(&machineCode, args[1], symbolicNames)
 
 		case instructions.LitMem:
-			encodeLitOrMem(&machineCode, args[0], labels)
-			encodeLitOrMem(&machineCode, args[1], labels)
+			encodeLitOrMem(&machineCode, args[0], symbolicNames)
+			encodeLitOrMem(&machineCode, args[1], symbolicNames)
 
 		case instructions.RegReg, instructions.RegPtrReg:
 			encodeReg(&machineCode, args[0])
 			encodeReg(&machineCode, args[1])
 
 		case instructions.LitOffReg:
-			encodeLitOrMem(&machineCode, args[0], labels)
+			encodeLitOrMem(&machineCode, args[0], symbolicNames)
 			encodeReg(&machineCode, args[1])
 			encodeReg(&machineCode, args[2])
 
@@ -135,7 +159,7 @@ func AssembleProgram(program []string) {
 			encodeReg(&machineCode, args[0])
 
 		case instructions.SingleLit:
-			encodeLitOrMem(&machineCode, args[0], labels)
+			encodeLitOrMem(&machineCode, args[0], symbolicNames)
 		}
 	}
 
@@ -151,7 +175,7 @@ func AssembleProgram(program []string) {
 
 	// Print resolved labels
 	fmt.Println("Labels:")
-	for label, addr := range labels {
+	for label, addr := range symbolicNames {
 		fmt.Printf("%s: 0x%04X\n", label, addr)
 	}
 }

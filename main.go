@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	simpleprograms.Program8()
+	simpleprograms.SimpleProgram9()
 }

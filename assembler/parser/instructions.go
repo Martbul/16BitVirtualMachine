@@ -100,6 +100,9 @@ func RegToReg2(mnemonic, instructionType string) func(string) (*Node, error) {
 }
 
 func ParseInstructionGeneral(input string) (*Node, error) {
+	if node, err := ParseConstant(input); err == nil {
+		return node, nil
+	}
 	if node, err := tryParserGroup(input, []Parser{
 		{"MovRegToReg", MovRegToReg},
 		{"MovLitToReg", MovLitToReg},

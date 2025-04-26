@@ -56,7 +56,9 @@ func parseInstructionOrLabel(input string) (*Node, string, error) {
 	if isLabelLine(input) {
 		return parseLabel(input)
 	}
-
+	if isConstantLine(input) {
+		return parseConstant(input)
+	}
 	// If not a label or data declaration, try parsing as an instruction
 	instruction, restAfterInstruction, err := parseInstruction(input)
 	if err != nil {
@@ -64,6 +66,35 @@ func parseInstructionOrLabel(input string) (*Node, string, error) {
 	}
 
 	return instruction, restAfterInstruction, nil
+}
+
+func isConstantLine(input string) bool {
+	trimmed := strings.TrimSpace(input)
+	return strings.HasPrefix(trimmed, "constant") || strings.HasPrefix(trimmed, "+constant")
+}
+
+func parseConstant(input string) (*Node, string, error) {
+	// Find where the constant definition ends (newline or semicolon)
+	endIndex := strings.IndexAny(input, "\n;")
+	var constantText string
+	var rest string
+
+	if endIndex == -1 {
+		// No newline or semicolon, assume constant takes the whole input
+		constantText = strings.TrimSpace(input)
+		rest = ""
+	} else {
+		constantText = strings.TrimSpace(input[:endIndex])
+		rest = input[endIndex+1:]
+	}
+
+	// Use the ParseConstant function from constants.go
+	node, err := ParseConstant(constantText)
+	if err != nil {
+		return nil, input, err
+	}
+
+	return node, rest, nil
 }
 
 // isDataDeclaration checks if the line starts with a data declaration

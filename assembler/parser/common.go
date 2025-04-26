@@ -19,6 +19,7 @@ var lexerDef = lexer.MustSimple([]lexer.SimpleRule{
 	{Name: "Punct", Pattern: `[\[\],!$&]`},
 	{Name: "DataType", Pattern: `data(8|16)`},
 	{Name: "Export", Pattern: `\+`},
+	{Name: "Keyword", Pattern: `(?i)(constant)`},
 })
 
 // Upper or lowercase string helpers
