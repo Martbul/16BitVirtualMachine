@@ -17,6 +17,8 @@ var lexerDef = lexer.MustSimple([]lexer.SimpleRule{
 	{Name: "Operator", Pattern: `[\+\-\*]`},
 	{Name: "Whitespace", Pattern: `[ \t\n\r]+`},
 	{Name: "Punct", Pattern: `[\[\],!$&]`},
+	{Name: "DataType", Pattern: `data(8|16)`},
+	{Name: "Export", Pattern: `\+`},
 })
 
 // Upper or lowercase string helpers

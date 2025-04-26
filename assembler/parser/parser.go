@@ -30,19 +30,80 @@ func ParseProgram(input string) ([]*Node, error) {
 
 // parseInstructionOrLabel attempts to parse either an instruction or a label
 // This is the Go equivalent of A.choice([instructionsParser, label])
+//func parseInstructionOrLabel(input string) (*Node, string, error) {
+// Try label first since it's simpler to detect
+//	if isLabelLine(input) {
+//		return parseLabel(input)
+//	}
+
+// If not a label, try parsing as an instruction
+///	instruction, restAfterInstruction, err := parseInstruction(input)
+//	if err != nil {
+//		return nil, input, fmt.Errorf("failed to parse as instruction or label: %v", err)
+//	}
+
+//	return instruction, restAfterInstruction, nil
+//}
+
+// Add to parseInstructionOrLabel in parser.go
 func parseInstructionOrLabel(input string) (*Node, string, error) {
-	// Try label first since it's simpler to detect
+	// Try data declarations first
+	if isDataDeclaration(input) {
+		return parseDataDeclaration(input)
+	}
+
+	// Try label
 	if isLabelLine(input) {
 		return parseLabel(input)
 	}
 
-	// If not a label, try parsing as an instruction
+	// If not a label or data declaration, try parsing as an instruction
 	instruction, restAfterInstruction, err := parseInstruction(input)
 	if err != nil {
-		return nil, input, fmt.Errorf("failed to parse as instruction or label: %v", err)
+		return nil, input, fmt.Errorf("failed to parse as instruction, label, or data declaration: %v", err)
 	}
 
 	return instruction, restAfterInstruction, nil
+}
+
+// isDataDeclaration checks if the line starts with a data declaration
+func isDataDeclaration(input string) bool {
+	trimmed := strings.TrimSpace(input)
+	return strings.HasPrefix(trimmed, "data8") ||
+		strings.HasPrefix(trimmed, "data16") ||
+		strings.HasPrefix(trimmed, "+data8") ||
+		strings.HasPrefix(trimmed, "+data16")
+}
+
+// parseDataDeclaration attempts to parse a data declaration
+func parseDataDeclaration(input string) (*Node, string, error) {
+	// Find where the declaration ends (closing brace followed by whitespace or EOF)
+	closeBraceIndex := strings.Index(input, "}")
+	if closeBraceIndex == -1 {
+		return nil, input, fmt.Errorf("missing closing brace in data declaration")
+	}
+
+	// Include the closing brace in the declaration
+	declarationText := strings.TrimSpace(input[:closeBraceIndex+1])
+	rest := input[closeBraceIndex+1:]
+
+	// Determine if it's data8 or data16
+	isData8 := strings.Contains(declarationText, "data8")
+
+	var node *Node
+	var err error
+
+	if isData8 {
+		node, err = ParseData8(declarationText)
+	} else {
+		node, err = ParseData16(declarationText)
+	}
+
+	if err != nil {
+		return nil, input, err
+	}
+
+	return node, rest, nil
 }
 
 // isLabelLine checks if the line starts with a label

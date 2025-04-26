@@ -10,22 +10,6 @@ import (
 	"github.com/martbul/registers"
 )
 
-// RegisterMap maps register names to their numeric codes
-//v////ar RegisterMap = map[string]byte{
-//	"ip":  0,
-//	"acc": 1,
-//	"r1":  2,
-///	"r2":  3,
-//	"r3":  4,
-//	"r4":  5,
-///	"r5":  6,
-//	"r6":  7,
-//	"r7":  8,
-//	"r8":  9,
-//	"sp":  10,
-//	"fp":  11,
-//}
-
 func AssembleProgram(program []string) {
 	programText := strings.Join(program, "\n")
 
@@ -55,6 +39,18 @@ func AssembleProgram(program []string) {
 				os.Exit(1)
 			}
 			labels[labelName] = currentAddress
+		} else if node.Type == "DATA_DECLARATION" {
+			// Process data declaration
+			dataValue := node.Value.(map[string]interface{})
+			dataName := dataValue["name"].(string)
+			// Store the address where this data begins
+			labels[dataName] = currentAddress
+
+			// Increment address based on data size and number of values
+			dataSize := dataValue["size"].(int)
+			dataValues := dataValue["values"].([]string)
+			bytesPerValue := dataSize / 8 // 8-bit data = 1 byte, 16-bit data = 2 bytes
+			currentAddress += len(dataValues) * bytesPerValue
 		} else {
 			// Must be an instruction
 			instrValue, ok := node.Value.(map[string]interface{})
@@ -77,6 +73,26 @@ func AssembleProgram(program []string) {
 		// Skip labels in second pass
 		if node.Type == "LABEL" {
 			continue
+		} else if node.Type == "DATA_DECLARATION" {
+			// Encode data values
+			dataValue := node.Value.(map[string]interface{})
+			dataSize := dataValue["size"].(int)
+			dataValues := dataValue["values"].([]string)
+
+			for _, valueStr := range dataValues {
+				var hexVal int
+				fmt.Sscanf(valueStr, "%X", &hexVal)
+
+				if dataSize == 8 {
+					// For 8-bit data, just encode the low byte
+					machineCode = append(machineCode, byte(hexVal&0xFF))
+				} else {
+					// For 16-bit data, encode both high and low bytes
+					highByte := byte((hexVal & 0xFF00) >> 8)
+					lowByte := byte(hexVal & 0x00FF)
+					machineCode = append(machineCode, highByte, lowByte)
+				}
+			}
 		}
 
 		instrValue := node.Value.(map[string]interface{})
