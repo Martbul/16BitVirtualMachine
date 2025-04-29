@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/alecthomas/participle/v2"
 )
 
@@ -30,11 +32,15 @@ func ParseConstant(input string) (*Node, error) {
 		participle.Elide("Whitespace"),
 	)
 	if err != nil {
+
 		return nil, err
 	}
 
+	fmt.Println(input)
 	constant, err := parser.ParseString("", input)
 	if err != nil {
+
+		fmt.Println("here4")
 		return nil, err
 	}
 

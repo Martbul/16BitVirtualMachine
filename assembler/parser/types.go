@@ -4,7 +4,6 @@ package parser
 // NodeType represents the type of AST node
 type NodeType string
 
-// Node types corresponding to JavaScript asType values
 const (
 	TypeRegister          NodeType = "REGISTER"
 	TypeLabel             NodeType = "LABEL"

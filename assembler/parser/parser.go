@@ -12,10 +12,13 @@ func ParseProgram(input string) ([]*Node, error) {
 	// Trim leading whitespace
 	remaining := strings.TrimSpace(input)
 
+	fmt.Println("here")
 	for len(remaining) > 0 {
 		// Try to parse either an instruction or label
 		node, rest, err := parseInstructionOrLabel(remaining)
 		if err != nil {
+
+			fmt.Println("here2")
 			return nil, fmt.Errorf("parse error at '%s': %v", remaining, err)
 		}
 
@@ -88,10 +91,12 @@ func parseConstant(input string) (*Node, string, error) {
 		rest = input[endIndex+1:]
 	}
 
-	// Use the ParseConstant function from constants.go
 	node, err := ParseConstant(constantText)
 	if err != nil {
+
+		fmt.Println("here3")
 		return nil, input, err
+
 	}
 
 	return node, rest, nil

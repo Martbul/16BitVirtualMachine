@@ -11,11 +11,10 @@ import (
 	"github.com/martbul/registers"
 )
 
-func AssembleProgram(program []string) {
-	programText := strings.Join(program, "\n")
+func AssembleProgram(program string) {
 
 	// Parse the program
-	parsedNodes, err := parser.ParseProgram(programText)
+	parsedNodes, err := parser.ParseProgram(program)
 	for _, n := range parsedNodes {
 
 		parser.PrettyPrintNode(n)
