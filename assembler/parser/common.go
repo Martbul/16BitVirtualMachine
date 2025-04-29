@@ -24,6 +24,7 @@ import (
 // {Name: "Keyword", Pattern: `(?i)(constant)`},
 // })
 // WARN: SOMEHOW THE "constant code_const = $C0DE" was parseed, if there is a future error it is likely to be in the lexerDef or HexLiteral or constant struct or the way the lexer handles punctuation and $ signs or other...
+
 var lexerDef = lexer.MustSimple([]lexer.SimpleRule{
 	// Keywords and symbols FIRST
 	{Name: "Constant", Pattern: `(?i)constant`},
@@ -33,13 +34,13 @@ var lexerDef = lexer.MustSimple([]lexer.SimpleRule{
 
 	// Then instruction, register, etc.
 	{Name: "Instruction", Pattern: `(?i)\b(mov|add|sub|inc|dec|mul|lsf|rsf|and|or|xor|not|jmp|jne|jeq|jlt|jgt|jle|jge|psh|pop|cal|ret|hlt)\b`},
-	{Name: "Register", Pattern: `(?i)\b(r[1-8]|sp|fp|ip|acc)\b`},
+	{Name: "Register", Pattern: `(?i)\b(r[1-8]|sp|fp|ip|acc|im)\b`},
 	{Name: "DataType", Pattern: `data(8|16)`},
 
 	// THEN Ident last
 	{Name: "Ident", Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`},
 
-	// Punctuation
+	{Name: "Brace", Pattern: `[{}]`},
 	{Name: "Punct", Pattern: `[\[\],!$&]`},
 	{Name: "Whitespace", Pattern: `[ \t\n\r]+`},
 })

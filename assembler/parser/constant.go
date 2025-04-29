@@ -71,11 +71,9 @@ func ParseConstant(input string) (*Node, error) {
 		return nil, err
 	}
 
-	fmt.Println(input)
 	constant, err := parser.ParseString("", input)
 	if err != nil {
 
-		fmt.Println("here4")
 		fmt.Println(err)
 		return nil, err
 	}

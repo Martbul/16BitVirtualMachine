@@ -11,16 +11,14 @@ import (
 	"github.com/martbul/registers"
 )
 
-func AssembleProgram(program []string) {
-	programText := strings.Join(program, "\n")
-	// Parse the program
-	parsedNodes, err := parser.ParseProgram(programText)
+func AssembleProgram(program string) {
+	parsedNodes, err := parser.ParseProgram(program)
 	for _, n := range parsedNodes {
-
 		parser.PrettyPrintNode(n)
 	}
 
 	if err != nil {
+		fmt.Println("here")
 		fmt.Fprintf(os.Stderr, "Error parsing program: %v\n", err)
 		os.Exit(1)
 	}

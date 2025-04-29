@@ -12,7 +12,6 @@ func ParseProgram(input string) ([]*Node, error) {
 	// Trim leading whitespace
 	remaining := strings.TrimSpace(input)
 
-	fmt.Println("here")
 	for len(remaining) > 0 {
 		// Try to parse either an instruction or label
 		node, rest, err := parseInstructionOrLabel(remaining)
@@ -30,31 +29,13 @@ func ParseProgram(input string) ([]*Node, error) {
 	return nodes, nil
 }
 
-// parseInstructionOrLabel attempts to parse either an instruction or a label
-// This is the Go equivalent of A.choice([instructionsParser, label])
-//func parseInstructionOrLabel(input string) (*Node, string, error) {
-// Try label first since it's simpler to detect
-//	if isLabelLine(input) {
-//		return parseLabel(input)
-//	}
-
-// If not a label, try parsing as an instruction
-///	instruction, restAfterInstruction, err := parseInstruction(input)
-//	if err != nil {
-//		return nil, input, fmt.Errorf("failed to parse as instruction or label: %v", err)
-//	}
-
-//	return instruction, restAfterInstruction, nil
-//}
-
 // Add to parseInstructionOrLabel in parser.go
 func parseInstructionOrLabel(input string) (*Node, string, error) {
-	// Try data declarations first
+
 	if isDataDeclaration(input) {
 		return parseDataDeclaration(input)
 	}
 
-	// Try label
 	if isLabelLine(input) {
 		return parseLabel(input)
 	}
@@ -64,6 +45,8 @@ func parseInstructionOrLabel(input string) (*Node, string, error) {
 	// If not a label or data declaration, try parsing as an instruction
 	instruction, restAfterInstruction, err := parseInstruction(input)
 	if err != nil {
+		fmt.Println("hhh")
+
 		return nil, input, fmt.Errorf("failed to parse as instruction, label, or data declaration: %v", err)
 	}
 
@@ -76,8 +59,7 @@ func isConstantLine(input string) bool {
 }
 
 func parseConstant(input string) (*Node, string, error) {
-	// Find where the constant definition ends (newline or semicolon)
-	endIndex := strings.IndexAny(input, "\n;")
+	endIndex := strings.IndexAny(input, "\n;") //gets only the single line with the constant
 	var constantText string
 	var rest string
 
@@ -92,8 +74,6 @@ func parseConstant(input string) (*Node, string, error) {
 
 	node, err := ParseConstant(constantText)
 	if err != nil {
-
-		fmt.Println("here3")
 		return nil, input, err
 
 	}
@@ -231,6 +211,7 @@ func parseInstruction(input string) (*Node, string, error) {
 		rest = input[endIndex+1:]
 	}
 
+	fmt.Println(instructionText)
 	// Use the existing ParseInstruction function from instructions.go
 	node, err := ParseInstruction(instructionText)
 	if err != nil {
