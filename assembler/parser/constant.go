@@ -6,12 +6,47 @@ import (
 	"github.com/alecthomas/participle/v2"
 )
 
-// Constant represents a constant definition in assembly
+//type Constant struct {
+//	IsExport bool        `parser:"@('+' )?"`
+//	Keyword  string      `parser:"@Constant"`
+//	Name     string      `parser:"@Ident"`
+//	Value    *HexLiteral `parser:"'=' @@"`
+//}
+
+//type Constant struct {
+//	IsExport bool        `parser:"@('+' )?"`
+//	Name     string      `parser:"@Constant @Ident"`
+//	Value    *HexLiteral `parser:"'=' @@"`
+//}
+
+//type Constant struct {
+//	IsExport bool        `parser:"@('+' )?"`  // Optional export
+//	Keyword  string      `parser:"@Constant"` // Matches the 'constant' keyword explicitly
+//	Name     string      `parser:"@Ident"`    // Matches the identifier for the constant name
+//	Value    *HexLiteral `parser:"'=' @@"`    // Matches the equals sign and then the HexLiteral
+//}
+
+//type Constant struct {
+//	IsExport bool        `parser:"@('+' )?"`  // Optional '+' (export)
+///	Keyword  string      `parser:"@Constant"` // Matches the 'constant' keyword
+///	Name     string      `parser:"@Ident"`    // Matches the identifier (e.g., code_const)
+///	Equals   string      `parser:"'='"`       // Matches the '=' sign explicitly
+//	Value    *HexLiteral `parser:"@@"`        // Matches the HexLiteral (e.g., $C0DE)
+//}
+
 type Constant struct {
-	IsExport bool        `parser:"@('+')?"`
-	Name     string      `parser:"'constant' @Ident"`
+	IsExport bool        `parser:"@('+' )?"`
+	Keyword  string      `parser:"@Constant"` // This matches the token `Constant`
+	Name     string      `parser:"@Ident"`
 	Value    *HexLiteral `parser:"'=' @@"`
 }
+
+//type Constant struct {
+///	IsExport bool        `parser:"@('+' )?"`
+//	Keyword  string      `parser:"@Constant"` // optional if you're using keyword matching
+//	Name     string      `parser:"@Ident"`
+//	Value    *HexLiteral `parser:"'=' @@"`
+//}
 
 // AsNode converts Constant to Node
 func (c *Constant) AsNode() *Node {
@@ -41,6 +76,7 @@ func ParseConstant(input string) (*Node, error) {
 	if err != nil {
 
 		fmt.Println("here4")
+		fmt.Println(err)
 		return nil, err
 	}
 

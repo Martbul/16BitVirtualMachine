@@ -38,9 +38,30 @@ func (r *Register) AsNode() *Node {
 	}
 }
 
+//type HexLiteral struct {
+//	Value string `parser:"'$' @HexDigit" json:"value"`
+//}
+
+//type HexLiteral struct {
+//	Value string `parser:"@HexDigit"`
+//}
+
+//type HexLiteral struct {
+//	Value string `parser:"@Dollar @HexDigit"`
+//}
+
+//	type HexLiteral struct {
+//		Dollar string `parser:"@Dollar"`   // Matches the $ sign explicitly
+//		Value  string `parser:"@HexDigit"` // Matches the hex digits
+//	}
 type HexLiteral struct {
-	Value string `parser:"'$' @HexDigit" json:"value"`
+	Value string `parser:"@HexDigit" json:"value"`
 }
+
+//type HexLiteral struct {
+//	Dollar string `parser:"@Dollar"`
+//	Value  string `parser:"@HexDigit"`
+//}
 
 // AsNode converts HexLiteral to Node
 func (h *HexLiteral) AsNode() *Node {

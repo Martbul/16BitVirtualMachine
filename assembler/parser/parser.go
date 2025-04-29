@@ -18,7 +18,6 @@ func ParseProgram(input string) ([]*Node, error) {
 		node, rest, err := parseInstructionOrLabel(remaining)
 		if err != nil {
 
-			fmt.Println("here2")
 			return nil, fmt.Errorf("parse error at '%s': %v", remaining, err)
 		}
 
