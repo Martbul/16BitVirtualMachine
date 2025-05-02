@@ -17,6 +17,8 @@ const (
 	TypeBracketedExpr     NodeType = "BRACKETED_EXPRESSION"
 	TypeBinaryOperation   NodeType = "BINARY_OPERATION"
 	TypeInstruction       NodeType = "INSTRUCTION"
+	TypeData              NodeType = "DATA"
+	TypeConstant          NodeType = "CONSTANT"
 )
 
 // Node represents a generic AST node with type and value
@@ -226,6 +228,25 @@ func (s *SquareBracketExpr) AsNode() *Node {
 	return DisambiguateOrderOfOperations(node)
 }
 
+type Constant struct {
+	IsExport bool        `parser:"@('+' )?"`
+	Keyword  string      `parser:"@Constant"` // This matches the token `Constant`
+	Name     string      `parser:"@Ident"`
+	Value    *HexLiteral `parser:"'=' @@"`
+}
+
+// AsNode converts Constant to Node
+func (c *Constant) AsNode() *Node {
+	return &Node{
+		Type: TypeConstant,
+		Value: map[string]interface{}{
+			"isExport": c.IsExport,
+			"name":     c.Name,
+			"value":    c.Value.Value,
+		},
+	}
+}
+
 type BracketedExpr struct { //INFO: Representing the different states Ope, Closed and elems slice is for operators, brackets and elements
 	Open     string         `parser:"'('"`
 	Elements []*ExprElement `parser:"@@ ( @@ )*"`
@@ -349,6 +370,25 @@ func (instr *RegPtrToRegInstruction) AsNode(instructionType string) *Node {
 		Value: map[string]interface{}{
 			"instruction": instructionType,
 			"args":        []*Node{instr.RegPtr.AsNode(), instr.Reg.AsNode()},
+		},
+	}
+}
+
+type ConstToRegInstruction struct {
+	Instr  string           `parser:"@('MOV'|'mov'|'ADD'|'add'|'SUB'|'sub'|'MUL'|'mul'|'LSF'|'lsf'|'RSF'|'rsf'|'AND'|'and'|'OR'|'or'|'XOR'|'xor'|'JMP'|'jmp'|'JNE'|'jne'|'JEQ'|'jeq'|'JLT'|'jlt'|'JGT'|'jgt'|'JLE'|'jle'|'JGE'|'jge'|'PSH'|'psh'|'POP'|'pop'|'CAL'|'cal'|'RET'|'ret'|'HLT'|'hlt'|'INC'|'inc'|'DEC'|'dec'|'NOT'|'not')"`
+	Const  *Constant        `parser:"@@"`
+	Comma1 string           `parser:"','"`
+	RegPtr *RegisterPointer `parser:"@@"`
+	Comma2 string           `parser:"','"`
+	Reg    *Register        `parser:"@@"`
+}
+
+func (instr *ConstToRegInstruction) AsNode(instructionType string) *Node {
+	return &Node{
+		Type: TypeInstruction,
+		Value: map[string]interface{}{
+			"instruction": instructionType,
+			"args":        []*Node{instr.Const.AsNode(), instr.RegPtr.AsNode(), instr.Reg.AsNode()},
 		},
 	}
 }

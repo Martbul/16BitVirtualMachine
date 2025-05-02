@@ -34,31 +34,23 @@ import (
 //	Value    *HexLiteral `parser:"@@"`        // Matches the HexLiteral (e.g., $C0DE)
 //}
 
-type Constant struct {
-	IsExport bool        `parser:"@('+' )?"`
-	Keyword  string      `parser:"@Constant"` // This matches the token `Constant`
-	Name     string      `parser:"@Ident"`
-	Value    *HexLiteral `parser:"'=' @@"`
-}
-
 //type Constant struct {
-///	IsExport bool        `parser:"@('+' )?"`
-//	Keyword  string      `parser:"@Constant"` // optional if you're using keyword matching
+//	IsExport bool        `parser:"@('+' )?"`
+//	Keyword  string      `parser:"@Constant"` // This matches the token `Constant`
 //	Name     string      `parser:"@Ident"`
 //	Value    *HexLiteral `parser:"'=' @@"`
 //}
-
 // AsNode converts Constant to Node
-func (c *Constant) AsNode() *Node {
-	return &Node{
-		Type: "CONSTANT",
-		Value: map[string]interface{}{
-			"isExport": c.IsExport,
-			"name":     c.Name,
-			"value":    c.Value.Value,
-		},
-	}
-}
+//func (c *Constant) AsNode() *Node {
+//	return &Node{
+//		Type: "CONSTANT",
+//		Value: map[string]interface{}{
+//			"isExport": c.IsExport,
+//			"name":     c.Name,
+//			"value":    c.Value.Value,
+//		},
+//	}
+//}
 
 // ParseConstant attempts to parse a constant declaration
 func ParseConstant(input string) (*Node, error) {

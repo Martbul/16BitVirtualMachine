@@ -173,6 +173,29 @@ func LitOffToReg(mnemonic, instructionType string) func(string) (*Node, error) {
 	}
 }
 
+func ConstToReg(mnemonic, instructionType string) func(string) (*Node, error) {
+	return func(input string) (*Node, error) {
+		parser, err := participle.Build[LitOffToRegInstruction](
+			participle.Lexer(lexerDef),
+			participle.Elide("Whitespace"),
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		instr, err := parser.ParseString("", input)
+		if err != nil {
+			return nil, err
+		}
+
+		if !strings.EqualFold(instr.Instr, mnemonic) {
+			return nil, fmt.Errorf("expected instruction %s, got %s", mnemonic, instr.Instr)
+		}
+
+		return instr.AsNode(instructionType), nil
+	}
+}
+
 func NoArg(mnemonic, instructionType string) func(string) (*Node, error) {
 	return func(input string) (*Node, error) {
 		parser, err := participle.Build[NoArgsInstruction](

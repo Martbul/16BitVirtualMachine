@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// WARN: For constants you can eaither get the value before calling this func or you can make mov,add and so on instr for costant
 func ParseInstruction(input string) (*Node, error) {
 	parsers := []Parser{
 		// MOV instructions
@@ -87,6 +88,7 @@ func ParseInstruction(input string) (*Node, error) {
 		if err == nil {
 			return node, nil
 		}
+		fmt.Println("sdasdas")
 		// Collect error for reporting
 		errors = append(errors, fmt.Sprintf("%s: %v", parser.Name, err))
 	}
