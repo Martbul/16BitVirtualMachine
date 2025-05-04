@@ -5,28 +5,137 @@ import (
 	"strings"
 )
 
+var constantsMap = make(map[string]string)
+
+// ParseProgram parses a complete program consisting of instructions and labels
+//func ParseProgram(input string) ([]*Node, error) {
+//	var nodes []*Node
+//	constantsMap = make(map[string]string) // Reset constants map
+//	// Trim leading whitespace
+//	remaining := strings.TrimSpace(input)
+
+//	for len(remaining) > 0 {
+//		if isConstantLine(remaining) {
+//			node, rest, err := parseConstant(remaining)
+//			if err != nil {
+//				return nil, fmt.Errorf("error parsing constant: %v", err)
+//			}
+//			// Store the constant in our map
+//			constantValue := node.Value.(map[string]interface{})
+//			constantsMap[constantValue["name"].(string)] = constantValue["value"].(map[string]interface{})["value"].(string)
+//			nodes = append(nodes, node)
+//			remaining = strings.TrimSpace(rest)
+//			continue
+//		}
+// Try to parse either an instruction or label
+//		node, rest, err := parseInstructionOrLabel(remaining)
+//		if err != nil {
+
+//			return nil, fmt.Errorf("parse error at '%s': %v", remaining, err)
+//		}
+
+//		nodes = append(nodes, node)
+
+// Update remaining input
+///		remaining = strings.TrimSpace(rest)
+//	}
+
+//		return nodes, nil
+//	}
+//
 // ParseProgram parses a complete program consisting of instructions and labels
 func ParseProgram(input string) ([]*Node, error) {
 	var nodes []*Node
-
-	// Trim leading whitespace
+	constantsMap = make(map[string]string) // Reset constants map
 	remaining := strings.TrimSpace(input)
 
 	for len(remaining) > 0 {
-		// Try to parse either an instruction or label
+		if isConstantLine(remaining) {
+			node, rest, err := parseConstant(remaining)
+			if err != nil {
+				return nil, fmt.Errorf("error parsing constant: %v", err)
+			}
+
+			// Safely extract constant value
+			constantValue, ok := node.Value.(map[string]interface{})
+			if !ok {
+				return nil, fmt.Errorf("invalid constant format")
+			}
+
+			name, ok := constantValue["name"].(string)
+			if !ok {
+				return nil, fmt.Errorf("invalid constant name")
+			}
+
+			value, ok := constantValue["value"]
+			if !ok {
+				return nil, fmt.Errorf("missing constant value")
+			}
+
+			// Handle both string and map value types
+			var valueStr string
+			switch v := value.(type) {
+			case string:
+				valueStr = v
+			case map[string]interface{}:
+				if val, exists := v["value"]; exists {
+					if strVal, ok := val.(string); ok {
+						valueStr = strVal
+					} else {
+						return nil, fmt.Errorf("invalid constant value type")
+					}
+				} else {
+					return nil, fmt.Errorf("missing nested constant value")
+				}
+			default:
+				return nil, fmt.Errorf("unexpected constant value type")
+			}
+
+			constantsMap[name] = valueStr
+			nodes = append(nodes, node)
+			remaining = strings.TrimSpace(rest)
+			continue
+		}
+
 		node, rest, err := parseInstructionOrLabel(remaining)
 		if err != nil {
-
 			return nil, fmt.Errorf("parse error at '%s': %v", remaining, err)
 		}
 
 		nodes = append(nodes, node)
-
-		// Update remaining input
 		remaining = strings.TrimSpace(rest)
 	}
 
 	return nodes, nil
+}
+func resolveConstantReferences(input string) (string, error) {
+	var result strings.Builder
+	i := 0
+
+	for i < len(input) {
+		if i+1 < len(input) && input[i] == '[' && input[i+1] == '!' {
+			// Found constant reference
+			end := strings.IndexByte(input[i:], ']')
+			if end == -1 {
+				return "", fmt.Errorf("unclosed constant reference")
+			}
+			end += i
+
+			constantName := input[i+2 : end]
+			constantValue, exists := constantsMap[constantName]
+			if !exists {
+				return "", fmt.Errorf("undefined constant: %s", constantName)
+			}
+
+			result.WriteString(constantValue)
+			i = end + 1
+		} else {
+			result.WriteByte(input[i])
+			i++
+		}
+	}
+
+	return result.String(), nil
 }
 
 // Add to parseInstructionOrLabel in parser.go
@@ -196,14 +305,37 @@ func parseLabel(input string) (*Node, string, error) {
 }
 
 // parseInstruction attempts to parse an instruction and returns the consumed input
+//func parseInstruction(input string) (*Node, string, error) {
+// Find where the instruction ends (newline or semicolon)
+//	endIndex := strings.IndexAny(input, "\n;")
+//	var instructionText string
+//	var rest string
+//
+//	if endIndex == -1 {
+//		// No newline or semicolon, assume instruction takes the whole input
+//		instructionText = strings.TrimSpace(input)
+//		rest = ""
+//	} else {
+//		instructionText = strings.TrimSpace(input[:endIndex])
+//		rest = input[endIndex+1:]
+//	}
+
+//	fmt.Println(instructionText)
+// Use the existing ParseInstruction function from instructions.go
+//	node, err := ParseInstruction(instructionText)
+//	if err != nil {
+//		return nil, input, err
+//	}
+
+//	return node, rest, nil
+////}
+
 func parseInstruction(input string) (*Node, string, error) {
-	// Find where the instruction ends (newline or semicolon)
 	endIndex := strings.IndexAny(input, "\n;")
 	var instructionText string
 	var rest string
 
 	if endIndex == -1 {
-		// No newline or semicolon, assume instruction takes the whole input
 		instructionText = strings.TrimSpace(input)
 		rest = ""
 	} else {
@@ -211,9 +343,13 @@ func parseInstruction(input string) (*Node, string, error) {
 		rest = input[endIndex+1:]
 	}
 
-	fmt.Println(instructionText)
-	// Use the existing ParseInstruction function from instructions.go
-	node, err := ParseInstruction(instructionText)
+	// Resolve constant references before parsing
+	resolvedInstruction, err := resolveConstantReferences(instructionText)
+	if err != nil {
+		return nil, input, fmt.Errorf("error resolving constants: %v", err)
+	}
+
+	node, err := ParseInstruction(resolvedInstruction)
 	if err != nil {
 		return nil, input, err
 	}
